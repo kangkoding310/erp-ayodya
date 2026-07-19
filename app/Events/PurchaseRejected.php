@@ -1,0 +1,18 @@
+<?php
+
+namespace App\Events;
+
+use App\Models\PurchaseApproval;
+use App\Models\PurchaseRequest;
+use Illuminate\Broadcasting\InteractsWithSockets;
+use Illuminate\Foundation\Events\Dispatchable;
+use Illuminate\Queue\SerializesModels;
+
+class PurchaseRejected
+{
+    use Dispatchable, InteractsWithSockets, SerializesModels;
+
+    public function __construct(public PurchaseRequest $purchaseRequest, public PurchaseApproval $approval)
+    {
+    }
+}
