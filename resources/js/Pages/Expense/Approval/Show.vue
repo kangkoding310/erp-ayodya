@@ -80,6 +80,7 @@ const reject = () => {
                                         <th class="px-2 py-2 text-left text-xs font-medium uppercase text-gray-500">Date</th>
                                         <th class="px-2 py-2 text-left text-xs font-medium uppercase text-gray-500">Category</th>
                                         <th class="px-2 py-2 text-left text-xs font-medium uppercase text-gray-500">Description</th>
+                                        <th class="px-2 py-2 text-left text-xs font-medium uppercase text-gray-500">Attachment</th>
                                         <th class="px-2 py-2 text-right text-xs font-medium uppercase text-gray-500">Total</th>
                                     </tr>
                                 </thead>
@@ -88,6 +89,17 @@ const reject = () => {
                                         <td class="px-2 py-2 text-sm text-gray-700">{{ formatDate(new Date(line.expense_date), 'DD/MM/YYYY') }}</td>
                                         <td class="px-2 py-2 text-sm text-gray-700">{{ line.expense_category?.name }}</td>
                                         <td class="px-2 py-2 text-sm text-gray-500">{{ line.description ?? '-' }}</td>
+                                        <td class="px-2 py-2 text-sm text-gray-700">
+                                            <a
+                                                v-if="line.media?.[0]"
+                                                :href="line.media[0].original_url"
+                                                target="_blank"
+                                                class="text-blue-600 hover:underline"
+                                            >
+                                                {{ line.media[0].file_name }}
+                                            </a>
+                                            <span v-else>-</span>
+                                        </td>
                                         <td class="px-2 py-2 text-right text-sm text-gray-700">{{ format(line.total) }}</td>
                                     </tr>
                                 </tbody>
@@ -101,7 +113,7 @@ const reject = () => {
                             id="remarks"
                             v-model="form.remarks"
                             rows="3"
-                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                         />
                         <div class="mt-4 flex justify-end gap-3">
                             <DangerButton :disabled="form.processing" @click="reject">Reject</DangerButton>

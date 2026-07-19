@@ -90,7 +90,7 @@ const destroy = (purchaseType: PurchaseType) => {
                                     <td class="px-4 py-3 text-sm text-gray-700">{{ purchaseType.code }}</td>
                                     <td class="px-4 py-3 text-sm text-gray-700">{{ purchaseType.name }}</td>
                                     <td class="px-4 py-3 text-right text-sm">
-                                        <button class="mr-3 text-indigo-600 hover:underline" @click="openEdit(purchaseType)">Edit</button>
+                                        <button class="mr-3 text-blue-600 hover:underline" @click="openEdit(purchaseType)">Edit</button>
                                         <button class="text-red-600 hover:underline" @click="destroy(purchaseType)">Delete</button>
                                     </td>
                                 </tr>

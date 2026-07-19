@@ -91,7 +91,7 @@ const destroy = (bank: Bank) => {
                                     <td class="px-4 py-3 text-sm text-gray-700">{{ bank.account_number }}</td>
                                     <td class="px-4 py-3 text-sm text-gray-700">{{ bank.account_name }}</td>
                                     <td class="px-4 py-3 text-right text-sm">
-                                        <button class="mr-3 text-indigo-600 hover:underline" @click="openEdit(bank)">Edit</button>
+                                        <button class="mr-3 text-blue-600 hover:underline" @click="openEdit(bank)">Edit</button>
                                         <button class="text-red-600 hover:underline" @click="destroy(bank)">Delete</button>
                                     </td>
                                 </tr>

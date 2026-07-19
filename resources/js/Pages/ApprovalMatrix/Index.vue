@@ -116,7 +116,7 @@ const destroy = (matrix: ApprovalMatrix) => {
                 </ol>
 
                 <div class="mt-4 flex justify-end gap-3 border-t border-gray-100 pt-3 text-sm">
-                    <button class="text-indigo-600 hover:underline" @click="openEdit(matrix)">Edit</button>
+                    <button class="text-blue-600 hover:underline" @click="openEdit(matrix)">Edit</button>
                     <button class="text-red-600 hover:underline" @click="destroy(matrix)">Delete</button>
                 </div>
             </Card>
@@ -142,7 +142,7 @@ const destroy = (matrix: ApprovalMatrix) => {
                         <select
                             id="purchase_type_id"
                             v-model="form.purchase_type_id"
-                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                         >
                             <option value="">All purchase types</option>
                             <option v-for="type in purchaseTypes" :key="type.id" :value="type.id">{{ type.name }}</option>
@@ -151,7 +151,7 @@ const destroy = (matrix: ApprovalMatrix) => {
                     </div>
 
                     <div class="flex items-center gap-2 sm:col-span-2">
-                        <input id="is_active" v-model="form.is_active" type="checkbox" class="rounded border-gray-300 text-indigo-600" />
+                        <input id="is_active" v-model="form.is_active" type="checkbox" class="rounded border-gray-300 text-blue-600" />
                         <InputLabel for="is_active" value="Active" />
                     </div>
                 </div>

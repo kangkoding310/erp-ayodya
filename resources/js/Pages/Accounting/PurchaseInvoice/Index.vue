@@ -50,7 +50,7 @@ const { format } = useCurrencyFormat();
                                     <td class="px-4 py-3 text-sm text-gray-700">{{ invoice.invoice_date }}</td>
                                     <td class="px-4 py-3 text-sm text-gray-700">{{ format(invoice.amount) }}</td>
                                     <td class="px-4 py-3 text-right text-sm">
-                                        <Link :href="route('accounting.purchase-invoices.show', invoice.id)" class="text-indigo-600 hover:underline">
+                                        <Link :href="route('accounting.purchase-invoices.show', invoice.id)" class="text-blue-600 hover:underline">
                                             View
                                         </Link>
                                     </td>

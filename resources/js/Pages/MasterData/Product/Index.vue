@@ -55,7 +55,7 @@ const destroy = (product: Product) => {
                                     <td class="px-4 py-3 text-sm text-gray-700">{{ format(product.price) }}</td>
                                     <td class="px-4 py-3 text-sm text-gray-700">{{ product.tax_percentage }}%</td>
                                     <td class="px-4 py-3 text-right text-sm">
-                                        <Link :href="route('master-data.products.edit', product.id)" class="mr-3 text-indigo-600 hover:underline"
+                                        <Link :href="route('master-data.products.edit', product.id)" class="mr-3 text-blue-600 hover:underline"
                                             >Edit</Link
                                         >
                                         <button class="text-red-600 hover:underline" @click="destroy(product)">Delete</button>

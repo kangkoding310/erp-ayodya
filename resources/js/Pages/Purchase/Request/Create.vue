@@ -58,7 +58,7 @@ const submit = () => {
                                 <select
                                     id="purchase_type_id"
                                     v-model="form.purchase_type_id"
-                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                                 >
                                     <option value="" disabled>Select purchase type</option>
                                     <option v-for="type in purchaseTypes" :key="type.id" :value="type.id">{{ type.name }}</option>
@@ -77,7 +77,7 @@ const submit = () => {
                                 <select
                                     id="employee_id"
                                     v-model="form.employee_id"
-                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                                 >
                                     <option value="" disabled>Select employee</option>
                                     <option v-for="employee in employees" :key="employee.id" :value="employee.id">{{ employee.name }}</option>
@@ -90,7 +90,7 @@ const submit = () => {
                                 <select
                                     id="division_id"
                                     v-model="form.division_id"
-                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                                 >
                                     <option value="" disabled>Select division</option>
                                     <option v-for="division in divisions" :key="division.id" :value="division.id">{{ division.name }}</option>

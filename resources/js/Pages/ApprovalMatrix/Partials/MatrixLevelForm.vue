@@ -49,20 +49,20 @@ const { add, remove } = useLineItems<DraftLevel>(
                                 v-model.number="level.level"
                                 type="number"
                                 min="1"
-                                class="block w-full rounded-md border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                class="block w-full rounded-md border-gray-300 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500"
                             />
                         </td>
                         <td class="px-2 py-2">
                             <select
                                 v-model="level.approver_id"
-                                class="block w-full rounded-md border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                class="block w-full rounded-md border-gray-300 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500"
                             >
                                 <option value="" disabled>Select approver</option>
                                 <option v-for="user in users" :key="user.id" :value="user.id">{{ user.name }}</option>
                             </select>
                         </td>
                         <td class="px-2 py-2 text-center">
-                            <input v-model="level.is_required" type="checkbox" class="rounded border-gray-300 text-indigo-600" />
+                            <input v-model="level.is_required" type="checkbox" class="rounded border-gray-300 text-blue-600" />
                         </td>
                         <td class="px-2 py-2 text-right">
                             <button type="button" class="text-red-600 hover:underline" @click="remove(index)">&times;</button>

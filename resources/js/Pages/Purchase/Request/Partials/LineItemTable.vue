@@ -60,7 +60,7 @@ const onProductChange = (line: DraftLine) => {
                         <td class="px-2 py-2">
                             <select
                                 v-model="line.product_id"
-                                class="block w-full rounded-md border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                class="block w-full rounded-md border-gray-300 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500"
                                 @change="onProductChange(line)"
                             >
                                 <option value="" disabled>Select product</option>
@@ -71,7 +71,7 @@ const onProductChange = (line: DraftLine) => {
                             <input
                                 v-model="line.description"
                                 type="text"
-                                class="block w-full rounded-md border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                class="block w-full rounded-md border-gray-300 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500"
                             />
                         </td>
                         <td class="px-2 py-2">
@@ -80,7 +80,7 @@ const onProductChange = (line: DraftLine) => {
                                 type="number"
                                 min="0.01"
                                 step="0.01"
-                                class="block w-full rounded-md border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                class="block w-full rounded-md border-gray-300 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500"
                             />
                         </td>
                         <td class="px-2 py-2">
@@ -89,7 +89,7 @@ const onProductChange = (line: DraftLine) => {
                                 type="number"
                                 min="0"
                                 step="0.01"
-                                class="block w-full rounded-md border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                class="block w-full rounded-md border-gray-300 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500"
                             />
                         </td>
                         <td class="px-2 py-2 text-sm text-gray-700">

@@ -28,11 +28,11 @@ defineEmits<{ 'toggle-sidebar': [] }>();
             :key="mod.key"
             :href="mod.href"
             class="flex shrink-0 items-center gap-2 rounded-2xl py-2 pl-2 pr-3 text-sm font-medium transition-all duration-200"
-            :class="mod.active ? 'bg-indigo-50 text-indigo-900 shadow-sm' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-800'"
+            :class="mod.active ? 'bg-blue-50 text-blue-900 shadow-sm' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-800'"
         >
             <span
                 class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full transition-colors"
-                :class="mod.active ? 'bg-white text-indigo-600 shadow-sm' : 'bg-gray-100 text-gray-500'"
+                :class="mod.active ? 'bg-white text-blue-600 shadow-sm' : 'bg-gray-100 text-gray-500'"
             >
                 <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" :d="mod.icon" />

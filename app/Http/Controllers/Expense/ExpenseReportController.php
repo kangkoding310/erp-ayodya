@@ -75,6 +75,7 @@ class ExpenseReportController extends Controller
             'expenseReport' => $expenseReport->load(
                 'employee.division',
                 'lines.expenseCategory',
+                'lines.media',
                 'approvals.approver',
                 'approvals.approvalMatrixLevel'
             ),
@@ -157,7 +158,14 @@ class ExpenseReportController extends Controller
     private function syncLines(ExpenseReport $expenseReport, array $lines): void
     {
         foreach ($lines as $line) {
-            $expenseReport->lines()->create($line);
+            $attachment = $line['attachment'] ?? null;
+            unset($line['attachment']);
+
+            $expenseReportLine = $expenseReport->lines()->create($line);
+
+            if ($attachment) {
+                $expenseReportLine->addMedia($attachment)->toMediaCollection('attachments');
+            }
         }
     }
 
@@ -171,6 +179,7 @@ class ExpenseReportController extends Controller
             'lines.*.expense_category_id' => ['required', 'exists:product_categories,id'],
             'lines.*.description' => ['nullable', 'string'],
             'lines.*.total' => ['required', 'numeric', 'min:0'],
+            'lines.*.attachment' => ['nullable', 'file', 'max:5120', 'mimes:jpg,jpeg,png,pdf'],
         ]);
     }
 

@@ -88,7 +88,7 @@ const destroy = (division: Division) => {
                                     <td class="px-4 py-3 text-sm text-gray-700">{{ division.code }}</td>
                                     <td class="px-4 py-3 text-sm text-gray-700">{{ division.name }}</td>
                                     <td class="px-4 py-3 text-right text-sm">
-                                        <button class="mr-3 text-indigo-600 hover:underline" @click="openEdit(division)">Edit</button>
+                                        <button class="mr-3 text-blue-600 hover:underline" @click="openEdit(division)">Edit</button>
                                         <button class="text-red-600 hover:underline" @click="destroy(division)">Delete</button>
                                     </td>
                                 </tr>

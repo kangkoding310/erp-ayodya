@@ -87,7 +87,7 @@ const destroy = (category: ProductCategory) => {
                                     <td class="px-4 py-3 text-sm text-gray-700">{{ category.code }}</td>
                                     <td class="px-4 py-3 text-sm text-gray-700">{{ category.name }}</td>
                                     <td class="px-4 py-3 text-right text-sm">
-                                        <button class="mr-3 text-indigo-600 hover:underline" @click="openEdit(category)">Edit</button>
+                                        <button class="mr-3 text-blue-600 hover:underline" @click="openEdit(category)">Edit</button>
                                         <button class="text-red-600 hover:underline" @click="destroy(category)">Delete</button>
                                     </td>
                                 </tr>

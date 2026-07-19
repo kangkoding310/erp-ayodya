@@ -97,7 +97,7 @@ const reject = () => {
                             id="remarks"
                             v-model="form.remarks"
                             rows="3"
-                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                         />
                         <div class="mt-4 flex justify-end gap-3">
                             <DangerButton :disabled="form.processing" @click="reject">Reject</DangerButton>

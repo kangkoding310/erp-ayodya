@@ -43,7 +43,7 @@ const submit = () => {
                             <select
                                 id="purchase_invoice_id"
                                 v-model="form.purchase_invoice_id"
-                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                             >
                                 <option value="" disabled>Select invoice</option>
                                 <option v-for="invoice in purchaseInvoices" :key="invoice.id" :value="invoice.id">
@@ -58,7 +58,7 @@ const submit = () => {
                             <select
                                 id="bank_id"
                                 v-model="form.bank_id"
-                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                             >
                                 <option value="" disabled>Select bank</option>
                                 <option v-for="bank in banks" :key="bank.id" :value="bank.id">{{ bank.bank_name }}</option>

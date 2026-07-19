@@ -52,7 +52,7 @@ const { format } = useCurrencyFormat();
                                     <td class="px-4 py-3 text-sm text-gray-700">{{ format(pr.total_amount) }}</td>
                                     <td class="px-4 py-3"><StatusBadge :status="pr.status" /></td>
                                     <td class="px-4 py-3 text-right text-sm">
-                                        <Link :href="route('purchase.requests.show', pr.id)" class="text-indigo-600 hover:underline">View</Link>
+                                        <Link :href="route('purchase.requests.show', pr.id)" class="text-blue-600 hover:underline">View</Link>
                                     </td>
                                 </tr>
                                 <tr v-if="purchaseRequests.data.length === 0">

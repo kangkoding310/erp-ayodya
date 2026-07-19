@@ -96,7 +96,7 @@ const destroy = (account: Coa) => {
                                     <td class="px-4 py-3 text-sm text-gray-700">{{ account.product?.name ?? '-' }}</td>
                                     <td class="px-4 py-3 text-sm text-gray-700">{{ account.type ?? '-' }}</td>
                                     <td class="px-4 py-3 text-right text-sm">
-                                        <button class="mr-3 text-indigo-600 hover:underline" @click="openEdit(account)">Edit</button>
+                                        <button class="mr-3 text-blue-600 hover:underline" @click="openEdit(account)">Edit</button>
                                         <button class="text-red-600 hover:underline" @click="destroy(account)">Delete</button>
                                     </td>
                                 </tr>
@@ -134,7 +134,7 @@ const destroy = (account: Coa) => {
                     <select
                         id="product_id"
                         v-model="form.product_id"
-                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                     >
                         <option value="">None</option>
                         <option v-for="product in products" :key="product.id" :value="product.id">{{ product.name }}</option>

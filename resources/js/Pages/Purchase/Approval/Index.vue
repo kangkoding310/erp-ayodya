@@ -50,7 +50,7 @@ const { format } = useCurrencyFormat();
                                     </td>
                                     <td class="px-4 py-3"><StatusBadge :status="approval.status" /></td>
                                     <td class="px-4 py-3 text-right text-sm">
-                                        <Link :href="route('purchase.approvals.show', approval.id)" class="text-indigo-600 hover:underline"
+                                        <Link :href="route('purchase.approvals.show', approval.id)" class="text-blue-600 hover:underline"
                                             >Review</Link
                                         >
                                     </td>

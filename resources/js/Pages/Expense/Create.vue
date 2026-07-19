@@ -5,6 +5,7 @@ import PrimaryButton from '@/Components/PrimaryButton.vue';
 import SecondaryButton from '@/Components/SecondaryButton.vue';
 import TextInput from '@/Components/TextInput.vue';
 import Card from '@/Components/ui/Card.vue';
+import FileUpload from '@/Components/ui/FileUpload.vue';
 import { useCurrencyFormat } from '@/Composables/useCurrencyFormat';
 import { useLineItems } from '@/Composables/useLineItems';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
@@ -22,6 +23,7 @@ interface DraftLine {
     expense_category_id: number | '';
     description: string;
     total: number;
+    attachment: File | null;
 }
 
 const form = useForm<{
@@ -31,7 +33,7 @@ const form = useForm<{
 }>({
     employee_id: '',
     summary: '',
-    lines: [{ expense_date: '', expense_category_id: '', description: '', total: 0 }],
+    lines: [{ expense_date: '', expense_category_id: '', description: '', total: 0, attachment: null }],
 });
 
 const { format } = useCurrencyFormat();
@@ -42,7 +44,7 @@ const linesRef = computed({
 
 const { add, remove, total } = useLineItems<DraftLine>(
     linesRef,
-    () => ({ expense_date: '', expense_category_id: '', description: '', total: 0 }),
+    () => ({ expense_date: '', expense_category_id: '', description: '', total: 0, attachment: null }),
     (line) => Number(line.total),
 );
 
@@ -60,7 +62,7 @@ const submit = () => {
         </template>
 
         <div class="py-8">
-            <div class="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
+            <div class="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
                 <Card>
                     <form class="space-y-6" @submit.prevent="submit">
                         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -69,7 +71,7 @@ const submit = () => {
                                 <select
                                     id="employee_id"
                                     v-model="form.employee_id"
-                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                                 >
                                     <option value="" disabled>Select employee</option>
                                     <option v-for="employee in employees" :key="employee.id" :value="employee.id">{{ employee.name }}</option>
@@ -94,6 +96,7 @@ const submit = () => {
                                             <th class="px-2 py-2 text-left text-xs font-medium uppercase text-gray-500">Category</th>
                                             <th class="px-2 py-2 text-left text-xs font-medium uppercase text-gray-500">Description</th>
                                             <th class="w-36 px-2 py-2 text-left text-xs font-medium uppercase text-gray-500">Total</th>
+                                            <th class="px-2 py-2 text-left text-xs font-medium uppercase text-gray-500">Attachment</th>
                                             <th class="w-10" />
                                         </tr>
                                     </thead>
@@ -103,13 +106,13 @@ const submit = () => {
                                                 <input
                                                     v-model="line.expense_date"
                                                     type="date"
-                                                    class="block w-full rounded-md border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                                    class="block w-full rounded-md border-gray-300 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500"
                                                 />
                                             </td>
                                             <td class="px-2 py-2">
                                                 <select
                                                     v-model="line.expense_category_id"
-                                                    class="block w-full rounded-md border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                                    class="block w-full rounded-md border-gray-300 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500"
                                                 >
                                                     <option value="" disabled>Select category</option>
                                                     <option v-for="category in expenseCategories" :key="category.id" :value="category.id">
@@ -121,7 +124,7 @@ const submit = () => {
                                                 <input
                                                     v-model="line.description"
                                                     type="text"
-                                                    class="block w-full rounded-md border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                                    class="block w-full rounded-md border-gray-300 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500"
                                                 />
                                             </td>
                                             <td class="px-2 py-2">
@@ -130,8 +133,11 @@ const submit = () => {
                                                     type="number"
                                                     min="0"
                                                     step="0.01"
-                                                    class="block w-full rounded-md border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                                    class="block w-full rounded-md border-gray-300 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500"
                                                 />
+                                            </td>
+                                            <td class="px-2 py-2" style="min-width: 220px">
+                                                <FileUpload v-model="line.attachment" />
                                             </td>
                                             <td class="px-2 py-2 text-right">
                                                 <button type="button" class="text-red-600 hover:underline" @click="remove(index)">&times;</button>

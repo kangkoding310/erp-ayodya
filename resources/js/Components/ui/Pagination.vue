@@ -16,7 +16,7 @@ defineProps<{ paginator: Paginated<unknown> }>();
                     :href="link.url"
                     preserve-scroll
                     class="rounded-md px-3 py-1 text-sm"
-                    :class="link.active ? 'bg-indigo-600 text-white' : 'text-gray-600 hover:bg-gray-100'"
+                    :class="link.active ? 'bg-blue-600 text-white' : 'text-gray-600 hover:bg-gray-100'"
                     v-html="link.label"
                 />
             </template>

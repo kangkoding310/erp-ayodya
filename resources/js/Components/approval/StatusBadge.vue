@@ -13,7 +13,7 @@ const colorMap: Record<string, string> = {
     cancelled: 'bg-red-100 text-red-700',
     in_rfq: 'bg-purple-100 text-purple-700',
     sent: 'bg-purple-100 text-purple-700',
-    sent_to_accounting: 'bg-indigo-100 text-indigo-700',
+    sent_to_accounting: 'bg-cyan-100 text-cyan-700',
     unpaid: 'bg-yellow-100 text-yellow-700',
     paid: 'bg-green-100 text-green-700',
 };

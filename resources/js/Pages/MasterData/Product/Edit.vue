@@ -50,7 +50,7 @@ const submit = () => {
                             <select
                                 id="product_category_id"
                                 v-model="form.product_category_id"
-                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                             >
                                 <option value="" disabled>Select category</option>
                                 <option v-for="category in categories" :key="category.id" :value="category.id">{{ category.name }}</option>

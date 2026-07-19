@@ -96,7 +96,7 @@ const destroy = (employee: Employee) => {
                                     <td class="px-4 py-3 text-sm text-gray-700">{{ employee.position ?? '-' }}</td>
                                     <td class="px-4 py-3 text-sm text-gray-700">{{ employee.user?.email ?? '-' }}</td>
                                     <td class="px-4 py-3 text-right text-sm">
-                                        <button class="mr-3 text-indigo-600 hover:underline" @click="openEdit(employee)">Edit</button>
+                                        <button class="mr-3 text-blue-600 hover:underline" @click="openEdit(employee)">Edit</button>
                                         <button class="text-red-600 hover:underline" @click="destroy(employee)">Delete</button>
                                     </td>
                                 </tr>
@@ -128,7 +128,7 @@ const destroy = (employee: Employee) => {
                     <select
                         id="division_id"
                         v-model="form.division_id"
-                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                     >
                         <option value="" disabled>Select division</option>
                         <option v-for="division in divisions" :key="division.id" :value="division.id">{{ division.name }}</option>

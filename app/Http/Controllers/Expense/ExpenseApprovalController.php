@@ -69,6 +69,7 @@ class ExpenseApprovalController extends Controller
             'approval' => $approval->load(
                 'expenseReport.employee',
                 'expenseReport.lines.expenseCategory',
+                'expenseReport.lines.media',
                 'expenseReport.approvals.approver',
                 'expenseReport.approvals.approvalMatrixLevel'
             ),

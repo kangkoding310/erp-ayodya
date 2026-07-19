@@ -19,7 +19,7 @@ defineEmits<{ close: [] }>();
         :class="open ? 'translate-x-0' : '-translate-x-full'"
     >
         <div class="mb-3 flex items-center gap-2 px-2">
-            <span class="flex h-8 w-8 items-center justify-center rounded-full bg-indigo-100 text-indigo-600">
+            <span class="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 text-blue-600">
                 <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" :d="icons.chartBar" />
                 </svg>
@@ -33,11 +33,11 @@ defineEmits<{ close: [] }>();
                 :key="child.href"
                 :href="child.href"
                 class="flex items-center justify-between rounded-xl px-3 py-2 text-sm transition-colors"
-                :class="child.active ? 'bg-indigo-50 font-medium text-indigo-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'"
+                :class="child.active ? 'bg-blue-50 font-medium text-blue-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'"
                 @click="$emit('close')"
             >
                 {{ child.label }}
-                <svg v-if="child.active" class="h-4 w-4 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg v-if="child.active" class="h-4 w-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" :d="icons.chevronRight" />
                 </svg>
             </Link>

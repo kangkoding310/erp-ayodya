@@ -51,7 +51,7 @@ const sourceCode = (bill: AccountingBill) => {
                                     <td class="px-4 py-3 text-sm text-gray-700">{{ bill.due_date ?? '-' }}</td>
                                     <td class="px-4 py-3"><StatusBadge :status="bill.status" /></td>
                                     <td class="px-4 py-3 text-right text-sm">
-                                        <Link :href="route('accounting.bills.show', bill.id)" class="text-indigo-600 hover:underline">View</Link>
+                                        <Link :href="route('accounting.bills.show', bill.id)" class="text-blue-600 hover:underline">View</Link>
                                     </td>
                                 </tr>
                                 <tr v-if="bills.data.length === 0">

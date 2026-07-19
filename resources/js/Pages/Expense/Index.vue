@@ -48,7 +48,7 @@ const { format } = useCurrencyFormat();
                             <td class="px-4 py-3 text-sm text-gray-700">{{ format(report.total_expense) }}</td>
                             <td class="px-4 py-3"><StatusBadge :status="report.status" /></td>
                             <td class="px-4 py-3 text-right text-sm">
-                                <Link :href="route('expense.reports.show', report.id)" class="text-indigo-600 hover:underline">View</Link>
+                                <Link :href="route('expense.reports.show', report.id)" class="text-blue-600 hover:underline">View</Link>
                             </td>
                         </tr>
                         <tr v-if="expenseReports.data.length === 0">

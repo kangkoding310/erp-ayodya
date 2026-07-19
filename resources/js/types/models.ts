@@ -162,6 +162,13 @@ export interface ExpenseCategory {
     name: string;
 }
 
+export interface Media {
+    id: number;
+    name: string;
+    file_name: string;
+    original_url: string;
+}
+
 export interface ExpenseReportLine {
     id: number;
     expense_report_id: number;
@@ -170,6 +177,7 @@ export interface ExpenseReportLine {
     description: string | null;
     total: string;
     expense_category?: ProductCategory;
+    media?: Media[];
 }
 
 export interface ExpenseReportApproval {
