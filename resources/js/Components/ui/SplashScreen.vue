@@ -18,7 +18,7 @@ onMounted(() => finishBooting());
                     <div
                         class="relative flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 text-lg font-bold text-white shadow-lg"
                     >
-                        ERP
+                        SCS
                     </div>
                 </div>
                 <p class="animate-pulse text-sm font-medium text-gray-500">Loading...</p>
