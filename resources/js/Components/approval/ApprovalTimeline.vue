@@ -1,8 +1,18 @@
 <script setup lang="ts">
-import type { PurchaseApproval } from '@/types/models';
+import type { ApprovalMatrixLevel, ApprovalStatus, UserOption } from '@/types/models';
 import StatusBadge from '@/Components/approval/StatusBadge.vue';
+import { formatDate } from '@vueuse/core';
 
-defineProps<{ approvals: PurchaseApproval[] }>();
+interface ApprovalEntry {
+    id: number;
+    status: ApprovalStatus;
+    remarks: string | null;
+    approved_at: string | null;
+    approver?: UserOption;
+    approval_matrix_level?: ApprovalMatrixLevel;
+}
+
+defineProps<{ approvals: ApprovalEntry[] }>();
 </script>
 
 <template>
@@ -30,7 +40,7 @@ defineProps<{ approvals: PurchaseApproval[] }>();
                 <StatusBadge :status="approval.status" class="mt-1" />
                 <p v-if="approval.remarks" class="mt-1 text-sm text-gray-500">"{{ approval.remarks }}"</p>
                 <p v-if="approval.approved_at" class="mt-1 text-xs text-gray-400">
-                    {{ new Date(approval.approved_at).toLocaleString() }}
+                    {{ formatDate(new Date(approval.approved_at), 'DD/MM/YYYY hh:mm:ss A') }}
                 </p>
             </div>
         </li>

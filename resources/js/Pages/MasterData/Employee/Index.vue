@@ -8,14 +8,13 @@ import TextInput from '@/Components/TextInput.vue';
 import Card from '@/Components/ui/Card.vue';
 import Pagination from '@/Components/ui/Pagination.vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import type { Division, Employee, Paginated, UserOption } from '@/types/models';
+import type { Division, Employee, Paginated } from '@/types/models';
 import { Head, router, useForm } from '@inertiajs/vue3';
 import { ref } from 'vue';
 
 defineProps<{
     employees: Paginated<Employee>;
     divisions: Division[];
-    users: UserOption[];
     filters: { search?: string };
 }>();
 
@@ -26,7 +25,7 @@ const form = useForm({
     name: '',
     division_id: '' as number | '',
     position: '',
-    user_id: '' as number | '',
+    email: '',
 });
 
 const openCreate = () => {
@@ -41,7 +40,7 @@ const openEdit = (employee: Employee) => {
     form.name = employee.name;
     form.division_id = employee.division_id;
     form.position = employee.position ?? '';
-    form.user_id = employee.user_id ?? '';
+    form.email = employee.user?.email ?? '';
     form.clearErrors();
     showModal.value = true;
 };
@@ -86,7 +85,7 @@ const destroy = (employee: Employee) => {
                                     <th class="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">Name</th>
                                     <th class="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">Division</th>
                                     <th class="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">Position</th>
-                                    <th class="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">Linked User</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">Login Email</th>
                                     <th class="px-4 py-3" />
                                 </tr>
                             </thead>
@@ -95,7 +94,7 @@ const destroy = (employee: Employee) => {
                                     <td class="px-4 py-3 text-sm text-gray-700">{{ employee.name }}</td>
                                     <td class="px-4 py-3 text-sm text-gray-700">{{ employee.division?.name ?? '-' }}</td>
                                     <td class="px-4 py-3 text-sm text-gray-700">{{ employee.position ?? '-' }}</td>
-                                    <td class="px-4 py-3 text-sm text-gray-700">{{ employee.user?.name ?? '-' }}</td>
+                                    <td class="px-4 py-3 text-sm text-gray-700">{{ employee.user?.email ?? '-' }}</td>
                                     <td class="px-4 py-3 text-right text-sm">
                                         <button class="mr-3 text-indigo-600 hover:underline" @click="openEdit(employee)">Edit</button>
                                         <button class="text-red-600 hover:underline" @click="destroy(employee)">Delete</button>
@@ -144,16 +143,10 @@ const destroy = (employee: Employee) => {
                 </div>
 
                 <div class="mt-4">
-                    <InputLabel for="user_id" value="Linked User (optional)" />
-                    <select
-                        id="user_id"
-                        v-model="form.user_id"
-                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                    >
-                        <option value="">None</option>
-                        <option v-for="user in users" :key="user.id" :value="user.id">{{ user.name }} ({{ user.email }})</option>
-                    </select>
-                    <InputError :message="form.errors.user_id" class="mt-2" />
+                    <InputLabel for="email" value="Login Email" />
+                    <TextInput id="email" v-model="form.email" type="email" class="mt-1 block w-full" />
+                    <InputError :message="form.errors.email" class="mt-2" />
+                    <p v-if="!editing" class="mt-1 text-xs text-gray-400">A user account will be created with the default password.</p>
                 </div>
 
                 <div class="mt-6 flex justify-end gap-3">

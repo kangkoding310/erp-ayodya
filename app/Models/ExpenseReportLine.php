@@ -29,6 +29,6 @@ class ExpenseReportLine extends Model implements HasMedia
 
     public function expenseCategory(): BelongsTo
     {
-        return $this->belongsTo(ExpenseCategory::class);
+        return $this->belongsTo(ProductCategory::class, 'expense_category_id');
     }
 }

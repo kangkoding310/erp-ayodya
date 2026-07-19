@@ -47,7 +47,10 @@ const submit = () => {
         });
     } else {
         form.post(route('master-data.purchase-types.store'), {
-            onSuccess: () => (showModal.value = false),
+            onSuccess: () => {
+                showModal.value = false
+                form.reset()
+            },
         });
     }
 };
@@ -83,7 +86,7 @@ const destroy = (purchaseType: PurchaseType) => {
                                 </tr>
                             </thead>
                             <tbody v-auto-animate class="divide-y divide-gray-100">
-                                <tr v-for="purchaseType in purchaseTypes.data" :key="purchaseType.id">
+                                <tr v-for="purchaseType in purchaseTypes?.data" :key="purchaseType.id">
                                     <td class="px-4 py-3 text-sm text-gray-700">{{ purchaseType.code }}</td>
                                     <td class="px-4 py-3 text-sm text-gray-700">{{ purchaseType.name }}</td>
                                     <td class="px-4 py-3 text-right text-sm">
@@ -91,13 +94,13 @@ const destroy = (purchaseType: PurchaseType) => {
                                         <button class="text-red-600 hover:underline" @click="destroy(purchaseType)">Delete</button>
                                     </td>
                                 </tr>
-                                <tr v-if="purchaseTypes.data.length === 0">
+                                <tr v-if="purchaseTypes?.data.length === 0">
                                     <td colspan="3" class="px-4 py-6 text-center text-sm text-gray-400">No purchase types yet.</td>
                                 </tr>
                             </tbody>
                         </table>
                     </div>
-                    <Pagination :paginator="purchaseTypes" />
+                    <Pagination v-if="purchaseTypes" :paginator="purchaseTypes" />
                 </Card>
             </div>
         </div>

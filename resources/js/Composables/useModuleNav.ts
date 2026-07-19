@@ -79,7 +79,10 @@ export function useModuleNav() {
             icon: icons.expense,
             href: route('expense.reports.index'),
             active: isRouteActive('expense'),
-            children: [],
+            children: [
+                { label: 'Reports', href: route('expense.reports.index'), active: isRouteActive('expense.reports') },
+                { label: 'Approvals', href: route('expense.approvals.index'), active: isRouteActive('expense.approvals') },
+            ],
         },
         {
             key: 'accounting',

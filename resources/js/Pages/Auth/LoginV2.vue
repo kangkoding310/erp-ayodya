@@ -4,6 +4,8 @@ import { icons } from '@/Constants/icons';
 import { Head, Link, useForm } from '@inertiajs/vue3';
 import { ref } from 'vue';
 
+import bgAuth from '@/Assets/images/bg-auth.png';
+
 defineProps<{
     canResetPassword?: boolean;
     status?: string;
@@ -39,26 +41,18 @@ const modules = [
 <template>
     <Head title="Log in" />
 
-    <div
-        class="relative flex min-h-screen w-full items-center justify-center overflow-hidden bg-gradient-to-br from-slate-950 via-blue-950 to-blue-600 px-6 py-12 lg:justify-center lg:gap-20 lg:px-16 xl:gap-28 xl:px-24"
-    >
-        <!-- decorative grid -->
-        <div class="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.05)_1px,transparent_1px)] bg-[size:40px_40px]" />
-
-        <!-- floating blobs -->
-        <div class="pointer-events-none absolute -left-24 -top-24 h-96 w-96 rounded-full bg-blue-500/25 blur-3xl [animation:blob-float_9s_ease-in-out_infinite]" />
-        <div class="pointer-events-none absolute -right-16 top-1/3 h-80 w-80 rounded-full bg-cyan-400/20 blur-3xl [animation:blob-float_11s_ease-in-out_infinite] [animation-delay:1.5s]" />
-        <div class="pointer-events-none absolute -bottom-24 left-1/3 h-96 w-96 rounded-full bg-blue-700/25 blur-3xl [animation:blob-float_13s_ease-in-out_infinite] [animation-delay:3s]" />
+    <div class="relative flex min-h-screen w-full items-center justify-start overflow-hidden bg-gradient-to-br from-slate-950 via-blue-950 to-blue-600 px-32 lg:justify-start">
+        <img :src="bgAuth" alt="" class="absolute left-0 top-0 w-screen h-[100dvh] object-cover">
 
         <!-- form card -->
         <div
             class="relative z-10 w-full max-w-md shrink-0 rounded-[2rem] border border-white/10 bg-white p-8 opacity-0 shadow-2xl shadow-black/40 [animation:fade-in-up_0.5s_ease-out_forwards] sm:p-10"
         >
             <div class="mb-7 flex flex-col items-center text-center">
-                <div class="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-600 to-blue-800 text-sm font-bold text-white shadow-lg shadow-blue-600/30">
-                    ERP
+                <div class="mb-1 flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-600 to-blue-800 text-sm font-bold text-white shadow-lg shadow-blue-600/30">
+                    SCS
                 </div>
-                <h1 class="text-lg font-bold tracking-tight text-gray-900">Ayodya ERP</h1>
+                <h1 class="text-lg font-bold tracking-tight text-gray-900">Semesta Core System</h1>
             </div>
 
             <div class="mb-7 text-center">
@@ -89,8 +83,8 @@ const modules = [
                         required
                         autofocus
                         autocomplete="username"
-                        placeholder="you@company.com"
-                        class="block w-full rounded-xl border bg-gray-50 px-4 py-2.5 text-sm text-gray-900 outline-none ring-blue-500/10 transition-all duration-200 placeholder:text-gray-400 focus:border-blue-500 focus:bg-white focus:ring-4"
+                        placeholder="admin@semesta.com"
+                        class="block w-full rounded-xl border bg-gray-50 px-4 py-2.5 text-sm text-gray-900 outline-none ring-blue-500/10 transition-all duration-200 placeholder:text-gray-400 focus:border-blue-500 focus:bg-white focus:ring-0"
                         :class="form.errors.email ? 'border-red-300 focus:border-red-500 focus:ring-red-500/10' : 'border-gray-200'"
                     />
                     <InputError class="mt-1.5" :message="form.errors.email" />
@@ -106,7 +100,7 @@ const modules = [
                             required
                             autocomplete="current-password"
                             placeholder="••••••••"
-                            class="block w-full rounded-xl border bg-gray-50 py-2.5 pl-4 pr-11 text-sm text-gray-900 outline-none ring-blue-500/10 transition-all duration-200 placeholder:text-gray-400 focus:border-blue-500 focus:bg-white focus:ring-4"
+                            class="block w-full rounded-xl border bg-gray-50 py-2.5 pl-4 pr-11 text-sm text-gray-900 outline-none ring-blue-500/10 transition-all duration-200 placeholder:text-gray-400 focus:border-blue-500 focus:bg-white focus:ring-0"
                             :class="form.errors.password ? 'border-red-300 focus:border-red-500 focus:ring-red-500/10' : 'border-gray-200'"
                         />
                         <button
@@ -162,59 +156,11 @@ const modules = [
 
             <div class="mt-8 flex flex-col items-center gap-1.5 border-t border-gray-100 pt-6 text-center">
                 <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-blue-600 to-blue-800 text-[10px] font-bold text-white">
-                    ERP
+                    SCS
                 </div>
-                <p class="text-xs font-medium text-gray-400">Ayodya ERP</p>
-                <p class="text-[11px] text-gray-400">&copy; {{ new Date().getFullYear() }} Ayodya ERP. All rights reserved.</p>
+                <p class="text-xs font-medium text-gray-400">Semesta Core System</p>
+                <p class="text-[11px] text-gray-400">&copy; {{ new Date().getFullYear() }} Semesta Core System. All rights reserved.</p>
             </div>
-        </div>
-
-        <!-- illustration -->
-        <div class="relative z-10 hidden flex-col items-center gap-12 lg:flex">
-            <div class="flex flex-col items-center gap-8 opacity-0 [animation:fade-in-up_0.7s_ease-out_forwards] [animation-delay:0.15s]">
-                <div class="relative flex h-28 w-28 items-center justify-center">
-                    <span class="absolute inset-0 rounded-[2rem] bg-white/10 [animation:ping_2.5s_cubic-bezier(0,0,0.2,1)_infinite]" />
-                    <span class="absolute inset-3 rounded-[1.5rem] bg-white/10 [animation:ping_2.5s_cubic-bezier(0,0,0.2,1)_infinite] [animation-delay:0.4s]" />
-                    <div class="relative flex h-20 w-20 items-center justify-center rounded-[1.5rem] border border-white/20 bg-white/10 shadow-2xl backdrop-blur-xl">
-                        <svg class="h-9 w-9 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" :d="icons.masterData" />
-                        </svg>
-                    </div>
-                </div>
-
-                <div class="max-w-xs text-center">
-                    <h2 class="text-xl font-semibold leading-snug text-white">One platform for your entire business</h2>
-                    <p class="mt-2 text-sm leading-relaxed text-blue-200">
-                        Manage purchasing, accounting, approvals, and master data — all in a single, unified workspace.
-                    </p>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-4 gap-6">
-                <div
-                    v-for="(m, i) in modules"
-                    :key="m.label"
-                    class="flex flex-col items-center gap-2 opacity-0 [animation:fade-in-up_0.5s_ease-out_forwards]"
-                    :style="{ animationDelay: `${0.4 + i * 0.1}s` }"
-                >
-                    <div
-                        class="flex h-14 w-14 items-center justify-center rounded-full bg-white shadow-lg [animation:float-y_5s_ease-in-out_infinite]"
-                        :style="{ animationDelay: `${i * 0.3}s` }"
-                    >
-                        <svg class="h-6 w-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" :d="m.icon" />
-                        </svg>
-                    </div>
-                    <span class="text-xs font-medium text-blue-100">{{ m.label }}</span>
-                </div>
-            </div>
-
-            <svg viewBox="0 0 200 140" class="h-28 w-44 text-white/10 opacity-0 [animation:fade-in-up_0.6s_ease-out_forwards] [animation-delay:0.6s]" fill="currentColor">
-                <rect x="40" y="6" width="120" height="82" rx="10" />
-                <rect x="92" y="88" width="16" height="14" />
-                <rect x="72" y="102" width="56" height="8" rx="4" />
-                <path d="M14 140c0-36 34-62 86-62s86 26 86 62" />
-            </svg>
         </div>
     </div>
 </template>

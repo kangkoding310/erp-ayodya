@@ -13,12 +13,14 @@ class PurchaseTypeController extends Controller
 {
     public function index(Request $request): Response
     {
-        return Inertia::render('MasterData/PurchaseType/Index', [
-            'purchase_types' => PurchaseType::query()
+        $purchaseTypes = PurchaseType::query()
                 ->when($request->string('search')->value(), fn ($q, $search) => $q->where('name', 'ilike', "%{$search}%"))
                 ->orderBy('name')
                 ->paginate(15)
-                ->withQueryString(),
+                ->withQueryString();
+        
+        return Inertia::render('MasterData/PurchaseType/Index', [
+            'purchaseTypes' => $purchaseTypes,
             'filters' => $request->only('search'),
         ]);
     }

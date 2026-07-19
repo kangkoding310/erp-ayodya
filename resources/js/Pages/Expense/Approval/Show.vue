@@ -1,63 +1,53 @@
 <script setup lang="ts">
+import DangerButton from '@/Components/DangerButton.vue';
+import InputLabel from '@/Components/InputLabel.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
-import SecondaryButton from '@/Components/SecondaryButton.vue';
 import ApprovalTimeline from '@/Components/approval/ApprovalTimeline.vue';
 import StatusBadge from '@/Components/approval/StatusBadge.vue';
 import Card from '@/Components/ui/Card.vue';
 import { useCurrencyFormat } from '@/Composables/useCurrencyFormat';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import type { ExpenseReport } from '@/types/models';
-import { Head, router, usePage } from '@inertiajs/vue3';
-import { computed } from 'vue';
-import type { PageProps } from '@/types';
+import type { ExpenseReportApproval } from '@/types/models';
+import { Head, useForm } from '@inertiajs/vue3';
 import { formatDate } from '@vueuse/core';
+import { computed } from 'vue';
 
 const props = defineProps<{
-    expenseReport: ExpenseReport;
+    approval: ExpenseReportApproval;
 }>();
 
+const expenseReport = props.approval.expense_report!;
 const { format } = useCurrencyFormat();
-
-const currentUserId = computed(() => usePage<PageProps>().props.auth.user.id);
-
-const cancellableStatuses = ['draft', 'submitted', 'in_approval'];
-const canCancel = computed(() => cancellableStatuses.includes(props.expenseReport.status));
-
-const canSendToAccounting = computed(() => {
-    const levelOneApproval = (props.expenseReport.approvals ?? []).find((approval) => approval.approval_matrix_level?.level === 1);
-    return levelOneApproval?.approver?.id === currentUserId.value;
-});
 
 // Approvals are processed from the highest matrix level down to the lowest,
 // so the timeline should display them in that order too.
 const orderedApprovals = computed(() =>
-    [...(props.expenseReport.approvals ?? [])].sort(
-        (a, b) => (b.approval_matrix_level?.level ?? 0) - (a.approval_matrix_level?.level ?? 0)
-    )
+    [...(expenseReport.approvals ?? [])].sort((a, b) => (b.approval_matrix_level?.level ?? 0) - (a.approval_matrix_level?.level ?? 0))
 );
 
-const submit = () => router.post(route('expense.reports.submit', props.expenseReport.id));
-const sendToAccounting = () => router.post(route('expense.reports.send-to-accounting', props.expenseReport.id));
-const destroy = () => {
-    if (confirm('Delete this draft expense report?')) {
-        router.delete(route('expense.reports.destroy', props.expenseReport.id));
-    }
+const form = useForm({ remarks: '' });
+
+const approve = () => {
+    form.post(route('expense.approvals.approve', props.approval.id));
 };
-const cancel = () => {
-    if (confirm('Cancel this expense report?')) {
-        router.post(route('expense.reports.cancel', props.expenseReport.id));
+
+const reject = () => {
+    if (!form.remarks) {
+        alert('Remarks are required when rejecting.');
+        return;
     }
+    form.post(route('expense.approvals.reject', props.approval.id));
 };
 </script>
 
 <template>
-    <Head :title="expenseReport.code" />
+    <Head :title="`Review ${expenseReport.code}`" />
 
     <AuthenticatedLayout>
         <template #header>
             <div class="flex items-center justify-between">
-                <h2 class="text-xl font-semibold leading-tight text-gray-800">{{ expenseReport.code }}</h2>
-                <StatusBadge :status="expenseReport.status" />
+                <h2 class="text-xl font-semibold leading-tight text-gray-800">Review {{ expenseReport.code }}</h2>
+                <StatusBadge :status="approval.status" />
             </div>
         </template>
 
@@ -79,17 +69,6 @@ const cancel = () => {
                                 <dd class="font-semibold text-gray-800">{{ format(expenseReport.total_expense) }}</dd>
                             </div>
                         </dl>
-
-                        <div class="mt-6 flex justify-end gap-3 border-t border-gray-100 pt-4">
-                            <template v-if="expenseReport.status === 'draft'">
-                                <SecondaryButton @click="destroy">Delete</SecondaryButton>
-                                <SecondaryButton v-if="canCancel" @click="cancel">Cancel</SecondaryButton>
-                                <PrimaryButton @click="submit">Submit</PrimaryButton>
-                            </template>
-                            <template v-else-if="expenseReport.status === 'approved' && canSendToAccounting">
-                                <PrimaryButton @click="sendToAccounting">Send to Accounting</PrimaryButton>
-                            </template>
-                        </div>
                     </Card>
 
                     <Card>
@@ -115,12 +94,26 @@ const cancel = () => {
                             </table>
                         </div>
                     </Card>
+
+                    <Card v-if="approval.status === 'pending'">
+                        <InputLabel for="remarks" value="Remarks (required to reject)" />
+                        <textarea
+                            id="remarks"
+                            v-model="form.remarks"
+                            rows="3"
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                        />
+                        <div class="mt-4 flex justify-end gap-3">
+                            <DangerButton :disabled="form.processing" @click="reject">Reject</DangerButton>
+                            <PrimaryButton :disabled="form.processing" @click="approve">Approve</PrimaryButton>
+                        </div>
+                    </Card>
                 </div>
 
                 <div>
-                    <Card v-if="orderedApprovals.length">
+                    <Card>
                         <h3 class="mb-3 text-sm font-medium text-gray-500">Approval Timeline</h3>
-                        <ApprovalTimeline :approvals="orderedApprovals" />
+                        <ApprovalTimeline v-if="orderedApprovals.length" :approvals="orderedApprovals" />
                     </Card>
                 </div>
             </div>

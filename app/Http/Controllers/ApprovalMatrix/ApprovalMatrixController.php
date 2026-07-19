@@ -4,9 +4,9 @@ namespace App\Http\Controllers\ApprovalMatrix;
 
 use App\Http\Controllers\Controller;
 use App\Models\ApprovalMatrix;
+use App\Models\Employee;
 use App\Models\PurchaseRequest;
 use App\Models\PurchaseType;
-use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -23,7 +23,12 @@ class ApprovalMatrixController extends Controller
                 ->orderBy('name')
                 ->get(),
             'purchaseTypes' => PurchaseType::orderBy('name')->get(['id', 'name']),
-            'users' => User::orderBy('name')->get(['id', 'name']),
+            'users' => Employee::query()
+                ->whereNotNull('user_id')
+                ->orderBy('name')
+                ->get(['user_id', 'name'])
+                ->map(fn (Employee $employee) => ['id' => $employee->user_id, 'name' => $employee->name])
+                ->values(),
             'modelTypes' => [
                 ['value' => PurchaseRequest::class, 'label' => 'Purchase Request'],
             ],

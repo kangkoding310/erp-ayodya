@@ -90,7 +90,7 @@ export type PurchaseStatus = 'draft' | 'submitted' | 'in_approval' | 'approved' 
 
 export type ApprovalStatus = 'pending' | 'approved' | 'rejected';
 
-export type ExpenseStatus = 'draft' | 'submitted' | 'approved' | 'rejected' | 'sent_to_accounting';
+export type ExpenseStatus = 'draft' | 'submitted' | 'in_approval' | 'approved' | 'rejected' | 'cancelled' | 'sent_to_accounting';
 
 export interface PurchaseRequestLine {
     id: number;
@@ -169,7 +169,20 @@ export interface ExpenseReportLine {
     expense_category_id: number;
     description: string | null;
     total: string;
-    expense_category?: ExpenseCategory;
+    expense_category?: ProductCategory;
+}
+
+export interface ExpenseReportApproval {
+    id: number;
+    expense_report_id: number;
+    approval_matrix_level_id: number;
+    approver_id: number;
+    status: ApprovalStatus;
+    remarks: string | null;
+    approved_at: string | null;
+    approver?: UserOption;
+    approval_matrix_level?: ApprovalMatrixLevel;
+    expense_report?: ExpenseReport;
 }
 
 export interface ExpenseReport {
@@ -182,6 +195,7 @@ export interface ExpenseReport {
     created_at: string;
     employee?: Employee;
     lines?: ExpenseReportLine[];
+    approvals?: ExpenseReportApproval[];
 }
 
 export interface AccountingBill {
