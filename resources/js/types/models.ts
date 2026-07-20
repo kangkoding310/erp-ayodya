@@ -19,6 +19,12 @@ export interface ProductCategory {
     name: string;
 }
 
+export interface Project {
+    id: number;
+    code: string;
+    name: string;
+}
+
 export interface Product {
     id: number;
     name: string;
@@ -174,9 +180,11 @@ export interface ExpenseReportLine {
     expense_report_id: number;
     expense_date: string;
     expense_category_id: number;
+    project_id: number | null;
     description: string | null;
     total: string;
     expense_category?: ProductCategory;
+    project?: Project | null;
     media?: Media[];
 }
 

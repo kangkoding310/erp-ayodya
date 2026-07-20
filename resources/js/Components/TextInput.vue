@@ -1,7 +1,16 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
 
-const model = defineModel<string>({ required: true });
+withDefaults(
+    defineProps<{
+        size?: 'default' | 'sm';
+    }>(),
+    {
+        size: 'default',
+    },
+);
+
+const model = defineModel<string | number>({ required: true });
 
 const input = ref<HTMLInputElement | null>(null);
 
@@ -15,5 +24,10 @@ defineExpose({ focus: () => input.value?.focus() });
 </script>
 
 <template>
-    <input class="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" v-model="model" ref="input" />
+    <input
+        v-model="model"
+        ref="input"
+        class="ui-input block disabled:cursor-not-allowed"
+        :class="{ 'ui-input-sm': size === 'sm' }"
+    />
 </template>

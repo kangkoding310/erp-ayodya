@@ -13,6 +13,7 @@ use App\Http\Controllers\MasterData\DivisionController;
 use App\Http\Controllers\MasterData\EmployeeController;
 use App\Http\Controllers\MasterData\ProductCategoryController;
 use App\Http\Controllers\MasterData\ProductController;
+use App\Http\Controllers\MasterData\ProjectController;
 use App\Http\Controllers\MasterData\PurchaseTypeController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Purchase\PurchaseApprovalController;
@@ -57,6 +58,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::resource('employees', EmployeeController::class)->only(['index', 'store', 'update', 'destroy']);
         Route::resource('divisions', DivisionController::class)->only(['index', 'store', 'update', 'destroy']);
         Route::resource('purchase-types', PurchaseTypeController::class)->only(['index', 'store', 'update', 'destroy']);
+        Route::resource('projects', ProjectController::class)->only(['index', 'store', 'update', 'destroy']);
     });
 
     // Purchase

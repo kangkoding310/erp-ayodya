@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import SecondaryButton from '@/Components/SecondaryButton.vue';
 import SelectInput from '@/Components/SelectInput.vue';
+import TextInput from '@/Components/TextInput.vue';
 import { useCurrencyFormat } from '@/Composables/useCurrencyFormat';
 import { useLineItems } from '@/Composables/useLineItems';
 import type { Product } from '@/types/models';
@@ -71,29 +72,13 @@ const onProductChange = (line: DraftLine) => {
                             />
                         </td>
                         <td class="px-2 py-2">
-                            <input
-                                v-model="line.description"
-                                type="text"
-                                class="block w-full rounded-md border-gray-300 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                            />
+                            <TextInput v-model="line.description" type="text" size="sm" class="w-full" />
                         </td>
                         <td class="px-2 py-2">
-                            <input
-                                v-model.number="line.qty"
-                                type="number"
-                                min="0.01"
-                                step="0.01"
-                                class="block w-full rounded-md border-gray-300 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                            />
+                            <TextInput v-model.number="line.qty" type="number" min="0.01" step="0.01" size="sm" class="w-full" />
                         </td>
                         <td class="px-2 py-2">
-                            <input
-                                v-model.number="line.price_estimate"
-                                type="number"
-                                min="0"
-                                step="0.01"
-                                class="block w-full rounded-md border-gray-300 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                            />
+                            <TextInput v-model.number="line.price_estimate" type="number" min="0" step="0.01" size="sm" class="w-full" />
                         </td>
                         <td class="px-2 py-2 text-sm text-gray-700">
                             {{ format(Number(line.qty) * Number(line.price_estimate)) }}

@@ -59,6 +59,7 @@ export function useModuleNav() {
                 { label: 'Employees', href: route('master-data.employees.index'), active: isRouteActive('master-data.employees') },
                 { label: 'Divisions', href: route('master-data.divisions.index'), active: isRouteActive('master-data.divisions') },
                 { label: 'Purchase Types', href: route('master-data.purchase-types.index'), active: isRouteActive('master-data.purchase-types') },
+                { label: 'Projects', href: route('master-data.projects.index'), active: isRouteActive('master-data.projects') },
             ],
         },
         {

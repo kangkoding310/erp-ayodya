@@ -79,6 +79,7 @@ const reject = () => {
                                     <tr>
                                         <th class="px-2 py-2 text-left text-xs font-medium uppercase text-gray-500">Date</th>
                                         <th class="px-2 py-2 text-left text-xs font-medium uppercase text-gray-500">Category</th>
+                                        <th class="px-2 py-2 text-left text-xs font-medium uppercase text-gray-500">Project</th>
                                         <th class="px-2 py-2 text-left text-xs font-medium uppercase text-gray-500">Description</th>
                                         <th class="px-2 py-2 text-left text-xs font-medium uppercase text-gray-500">Attachment</th>
                                         <th class="px-2 py-2 text-right text-xs font-medium uppercase text-gray-500">Total</th>
@@ -88,13 +89,18 @@ const reject = () => {
                                     <tr v-for="line in expenseReport.lines" :key="line.id">
                                         <td class="px-2 py-2 text-sm text-gray-700">{{ formatDate(new Date(line.expense_date), 'DD/MM/YYYY') }}</td>
                                         <td class="px-2 py-2 text-sm text-gray-700">{{ line.expense_category?.name }}</td>
+                                        <td class="px-2 py-2 text-sm text-gray-700">
+                                            <div class="line-clamp-1 break-all">
+                                                {{ line.project?.name ?? '-' }}
+                                            </div>
+                                        </td>
                                         <td class="px-2 py-2 text-sm text-gray-500">{{ line.description ?? '-' }}</td>
                                         <td class="px-2 py-2 text-sm text-gray-700">
                                             <a
                                                 v-if="line.media?.[0]"
                                                 :href="line.media[0].original_url"
                                                 target="_blank"
-                                                class="text-blue-600 hover:underline"
+                                                class="text-blue-600 hover:underline line-clamp-1 max-w-32"
                                             >
                                                 {{ line.media[0].file_name }}
                                             </a>

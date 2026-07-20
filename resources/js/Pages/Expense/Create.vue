@@ -10,21 +10,25 @@ import FileUpload from '@/Components/ui/FileUpload.vue';
 import { useCurrencyFormat } from '@/Composables/useCurrencyFormat';
 import { useLineItems } from '@/Composables/useLineItems';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import type { Employee, ExpenseCategory } from '@/types/models';
+import type { Employee, ExpenseCategory, Project } from '@/types/models';
+import { icons } from '@/Constants/icons';
 import { Head, Link, useForm } from '@inertiajs/vue3';
 import { computed } from 'vue';
 
 const props = defineProps<{
     employees: Employee[];
     expenseCategories: ExpenseCategory[];
+    projects: Project[];
 }>();
 
 const employeeOptions = computed(() => props.employees.map((employee) => ({ id: employee.id, text: employee.name })));
 const expenseCategoryOptions = computed(() => props.expenseCategories.map((category) => ({ id: category.id, text: category.name })));
+const projectOptions = computed(() => props.projects.map((project) => ({ id: project.id, text: project.name })));
 
 interface DraftLine {
     expense_date: string;
     expense_category_id: number | '';
+    project_id: number | '';
     description: string;
     total: number;
     attachment: File | null;
@@ -37,7 +41,7 @@ const form = useForm<{
 }>({
     employee_id: '',
     summary: '',
-    lines: [{ expense_date: '', expense_category_id: '', description: '', total: 0, attachment: null }],
+    lines: [{ expense_date: '', expense_category_id: '', project_id: '', description: '', total: 0, attachment: null }],
 });
 
 const { format } = useCurrencyFormat();
@@ -48,7 +52,7 @@ const linesRef = computed({
 
 const { add, remove, total } = useLineItems<DraftLine>(
     linesRef,
-    () => ({ expense_date: '', expense_category_id: '', description: '', total: 0, attachment: null }),
+    () => ({ expense_date: '', expense_category_id: '', project_id: '', description: '', total: 0, attachment: null }),
     (line) => Number(line.total),
 );
 
@@ -84,7 +88,7 @@ const submit = () => {
 
                             <div>
                                 <InputLabel for="summary" value="Summary (optional)" />
-                                <TextInput id="summary" v-model="form.summary" class="mt-1 block w-full" />
+                                <TextInput id="summary" v-model="form.summary" size="sm" class="mt-1 block w-full" />
                                 <InputError :message="form.errors.summary" class="mt-2" />
                             </div>
                         </div>
@@ -96,54 +100,66 @@ const submit = () => {
                                     <thead>
                                         <tr>
                                             <th class="px-2 py-2 text-left text-xs font-medium uppercase text-gray-500">Date</th>
-                                            <th class="px-2 py-2 text-left text-xs font-medium uppercase text-gray-500">Category</th>
+                                            <th class="px-2 py-2 text-left text-xs font-medium uppercase text-gray-500 w-44">Category</th>
+                                            <th class="px-2 py-2 text-left text-xs font-medium uppercase text-gray-500 w-52">Project</th>
                                             <th class="px-2 py-2 text-left text-xs font-medium uppercase text-gray-500">Description</th>
                                             <th class="w-36 px-2 py-2 text-left text-xs font-medium uppercase text-gray-500">Total</th>
-                                            <th class="px-2 py-2 text-left text-xs font-medium uppercase text-gray-500">Attachment</th>
+                                            <!-- <th class="px-2 py-2 text-left text-xs font-medium uppercase text-gray-500">Attachment</th> -->
                                             <th class="w-10" />
                                         </tr>
                                     </thead>
                                     <tbody v-auto-animate class="divide-y divide-gray-100">
-                                        <tr v-for="(line, index) in form.lines" :key="index">
-                                            <td class="px-2 py-2">
-                                                <input
-                                                    v-model="line.expense_date"
-                                                    type="date"
-                                                    class="block w-full rounded-md border-gray-300 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                                                />
-                                            </td>
-                                            <td class="px-2 py-2">
-                                                <SelectInput
-                                                    v-model="line.expense_category_id"
-                                                    :options="expenseCategoryOptions"
-                                                    placeholder="Select category"
-                                                    size="sm"
-                                                    class="block w-full"
-                                                />
-                                            </td>
-                                            <td class="px-2 py-2">
-                                                <input
-                                                    v-model="line.description"
-                                                    type="text"
-                                                    class="block w-full rounded-md border-gray-300 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                                                />
-                                            </td>
-                                            <td class="px-2 py-2">
-                                                <input
-                                                    v-model.number="line.total"
-                                                    type="number"
-                                                    min="0"
-                                                    step="0.01"
-                                                    class="block w-full rounded-md border-gray-300 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                                                />
-                                            </td>
-                                            <td class="px-2 py-2" style="min-width: 220px">
-                                                <FileUpload v-model="line.attachment" />
-                                            </td>
-                                            <td class="px-2 py-2 text-right">
-                                                <button type="button" class="text-red-600 hover:underline" @click="remove(index)">&times;</button>
-                                            </td>
-                                        </tr>
+                                        <template v-for="(line, index) in form.lines" :key="index">
+                                            <tr>
+                                                <td class="px-2 py-2">
+                                                    <TextInput v-model="line.expense_date" type="date" size="sm" class="w-full" />
+                                                </td>
+                                                <td class="px-2 py-2">
+                                                    <SelectInput
+                                                        v-model="line.expense_category_id"
+                                                        :options="expenseCategoryOptions"
+                                                        placeholder="Select category"
+                                                        size="sm"
+                                                        class="block w-full"
+                                                    />
+                                                </td>
+                                                <td class="px-2 py-2">
+                                                    <SelectInput
+                                                        v-model="line.project_id"
+                                                        :options="projectOptions"
+                                                        placeholder="Select project"
+                                                        size="sm"
+                                                        allow-clear
+                                                        class="block w-full"
+                                                    />
+                                                </td>
+                                                <td class="px-2 py-2">
+                                                    <TextInput v-model="line.description" type="text" size="sm" class="w-full" />
+                                                </td>
+                                                <td class="px-2 py-2">
+                                                    <TextInput v-model.number="line.total" type="number" min="0" step="0.01" size="sm" class="w-full" />
+                                                </td>
+                                                <!-- <td class="px-2 py-2" style="min-width: 220px">
+                                                    <FileUpload v-model="line.attachment" />
+                                                </td> -->
+                                                <td class="px-2 py-2 text-right">
+                                                    <button
+                                                        type="button"
+                                                        class="inline-flex text-red-600 hover:text-red-700"
+                                                        @click="remove(index)"
+                                                    >
+                                                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" :d="icons.trash" />
+                                                        </svg>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td colspan="5">
+                                                    <FileUpload v-model="line.attachment" label="Drop Attachment or browse" size="sm" />
+                                                </td>
+                                            </tr>
+                                        </template>
                                     </tbody>
                                 </table>
                             </div>

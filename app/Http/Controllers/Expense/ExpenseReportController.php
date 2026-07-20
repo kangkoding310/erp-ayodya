@@ -8,6 +8,7 @@ use App\Models\ApprovalMatrixLevel;
 use App\Models\Employee;
 use App\Models\ExpenseReport;
 use App\Models\ProductCategory;
+use App\Models\Project;
 use App\Services\ExpenseApprovalRoutingService;
 use App\Services\ExpenseReportService;
 use Illuminate\Http\RedirectResponse;
@@ -75,6 +76,7 @@ class ExpenseReportController extends Controller
             'expenseReport' => $expenseReport->load(
                 'employee.division',
                 'lines.expenseCategory',
+                'lines.project',
                 'lines.media',
                 'approvals.approver',
                 'approvals.approvalMatrixLevel'
@@ -177,6 +179,7 @@ class ExpenseReportController extends Controller
             'lines' => ['required', 'array', 'min:1'],
             'lines.*.expense_date' => ['required', 'date'],
             'lines.*.expense_category_id' => ['required', 'exists:product_categories,id'],
+            'lines.*.project_id' => ['nullable', 'exists:projects,id'],
             'lines.*.description' => ['nullable', 'string'],
             'lines.*.total' => ['required', 'numeric', 'min:0'],
             'lines.*.attachment' => ['nullable', 'file', 'max:5120', 'mimes:jpg,jpeg,png,pdf'],
@@ -188,6 +191,7 @@ class ExpenseReportController extends Controller
         return [
             'employees' => Employee::orderBy('name')->get(['id', 'name']),
             'expenseCategories' => ProductCategory::orderBy('name')->get(['id', 'name']),
+            'projects' => Project::orderBy('name')->get(['id', 'name']),
         ];
     }
 }

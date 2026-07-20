@@ -2,75 +2,254 @@
 @tailwind components;
 @tailwind utilities;
 
+/* =========================================
+   Variables
+========================================= */
+:root {
+    --ui-height: 2.5rem;
+    --ui-height-sm: 2.1875rem;
+
+    --ui-radius: 6px;
+
+    --ui-bg: #ffffff;
+    --ui-bg-disabled: #f9fafb;
+
+    --ui-border: #d1d5db;
+    --ui-border-hover: #9ca3af;
+    --ui-border-focus: #2563eb;
+
+    --ui-text: #111827;
+    --ui-placeholder: #9ca3af;
+    --ui-disabled: #6b7280;
+
+    --ui-shadow:
+        0 1px 2px rgb(0 0 0 / 0.05);
+
+    --ui-shadow-focus:
+        0 0 0 3px rgb(37 99 235 / 0.15);
+
+    --ui-transition: all .18s ease;
+}
+
+/* =========================================
+   Page Transition
+========================================= */
+
 .page-enter-active,
 .page-leave-active {
     transition:
-        opacity 0.15s ease,
-        transform 0.15s ease;
+        opacity .15s ease,
+        transform .15s ease;
 }
+
 .page-enter-from {
     opacity: 0;
     transform: translateY(6px);
 }
+
 .page-leave-to {
     opacity: 0;
     transform: translateY(-6px);
 }
 
-/* Match app select2 (SelectInput.vue) to the default Tailwind form select styling */
+/* =========================================
+   Shared Form Style
+========================================= */
+
+.ui-input,
 .app-select2 .select2-selection--single {
-    height: 2.375rem;
-    display: flex;
-    align-items: center;
-    border: 1px solid #d1d5db;
-    border-radius: 0.375rem;
-    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-    background-color: #fff;
-    padding: 0;
+    height: var(--ui-height);
+    background: var(--ui-bg);
+    border: 1px solid var(--ui-border);
+    border-radius: var(--ui-radius);
+
+    transition: var(--ui-transition);
+
+    box-shadow: var(--ui-shadow);
 }
-.app-select2 .select2-selection__rendered {
-    padding-left: 0.75rem;
-    padding-right: 1.5rem;
-    color: #111827;
-    line-height: normal;
+
+.ui-input:hover,
+.app-select2 .select2-selection--single:hover {
+    border-color: var(--ui-border-hover);
 }
-.app-select2 .select2-selection__placeholder {
-    color: #6b7280;
-}
-.app-select2 .select2-selection__arrow {
-    height: 2.375rem;
-    right: 0.5rem;
-}
-.app-select2.select2-container--disabled .select2-selection--single {
-    background-color: #f3f4f6;
-    color: #6b7280;
-}
+
+.ui-input:focus,
 .app-select2.select2-container--focus .select2-selection--single,
 .app-select2.select2-container--open .select2-selection--single {
-    border-color: #3b82f6;
-    outline: none;
-    box-shadow: 0 0 0 1px #3b82f6;
+    border-color: var(--ui-border-focus);
+    box-shadow:
+        var(--ui-shadow),
+        var(--ui-shadow-focus);
 }
+
+/* =========================================
+   Input
+========================================= */
+
+.ui-input {
+    width: 100%;
+    padding: 0 .875rem;
+    font-size: .875rem;
+    color: var(--ui-text);
+}
+
+.ui-input::placeholder {
+    color: var(--ui-placeholder);
+}
+
+.ui-input:disabled {
+    background: var(--ui-bg-disabled);
+    color: var(--ui-disabled);
+}
+
+/* =========================================
+   Select2
+========================================= */
+
+.app-select2 .select2-selection--single {
+    display: flex;
+    align-items: center;
+}
+
+.app-select2 .select2-selection__rendered {
+    padding-left: .875rem;
+    padding-right: 2.25rem;
+
+    color: var(--ui-text);
+    font-size: .875rem;
+    line-height: normal;
+}
+
+.app-select2 .select2-selection__placeholder {
+    color: var(--ui-placeholder);
+}
+
+.app-select2 .select2-selection__arrow {
+    height: var(--ui-height);
+    width: 2rem;
+    right: .25rem;
+}
+
+.app-select2.select2-container--disabled .select2-selection--single {
+    background: var(--ui-bg-disabled);
+    color: var(--ui-disabled);
+}
+
+/* =========================================
+   Small Variant
+========================================= */
+
+.ui-input-sm,
 .app-select2--sm .select2-selection--single {
-    height: 2rem;
-    font-size: 0.875rem;
+    height: var(--ui-height-sm);
+    font-size: .813rem;
 }
+
+.select2-container .select2-selection--single {
+    height: var(--ui-height-sm) !important;
+}
+
+.select2-container--default .select2-selection--single {
+    background: var(--ui-bg);
+    border: 1px solid var(--ui-border) !important;
+    border-radius: var(--ui-radius) !important;
+    transition: var(--ui-transition);
+    box-shadow: var(--ui-shadow);
+}
+.select2-container--default .select2-selection--single .select2-selection__clear {
+    height: 34px !important;
+    margin-right: 23px !important;
+}
+.select2-container--default .select2-selection--single .select2-selection__rendered {
+    line-height: var(--ui-height-sm) !important;
+    font-size: 12px;
+}
+
+.select2-container--default .select2-selection--single .select2-selection__placeholder {
+    font-size: 12px;
+}
+
+.select2-container--default .select2-selection--single .select2-selection__arrow {
+    right: 4px !important;
+    height: 34px !important;
+}
+
+.select2-container--default .select2-search--dropdown .select2-search__field {
+    font-size: 14px;
+    border: 1px solid var(--ui-border) !important;
+}
+
 .app-select2--sm .select2-selection__arrow {
-    height: 2rem;
+    height: var(--ui-height-sm);
 }
+
+.app-select2--sm .select2-selection__rendered {
+    padding-left: .75rem;
+}
+
+/* =========================================
+   Dropdown
+========================================= */
+
 .select2-dropdown {
-    border-color: #d1d5db;
-    border-radius: 0.375rem;
+    border: 1px solid var(--ui-border);
+    border-radius: var(--ui-radius);
+
     overflow: hidden;
+
+    box-shadow:
+        0 10px 25px rgb(0 0 0 / 0.08);
 }
-.select2-container--default .select2-results__option--highlighted[aria-selected] {
-    background-color: #3b82f6;
+
+.select2-search--dropdown {
+    padding: .5rem;
 }
+
 .select2-search--dropdown .select2-search__field {
-    border-radius: 0.375rem;
-    border-color: #d1d5db;
+    height: 2.25rem;
+    border: 1px solid var(--ui-border);
+    border-radius: calc(var(--ui-radius) - 2px);
+    padding: 0 .75rem;
+
+    transition: var(--ui-transition);
 }
+
 .select2-search--dropdown .select2-search__field:focus {
+    border-color: var(--ui-border-focus);
+    box-shadow: var(--ui-shadow-focus);
     outline: none;
-    border-color: #3b82f6;
+}
+
+.select2-results__option {
+    font-size: 12px;
+    /* padding: .65rem .875rem; */
+    /* transition: background .15s; */
+}
+
+/* .select2-container--default
+.select2-results__option--highlighted[aria-selected] {
+    background: #2563eb;
+}
+
+.select2-container--default
+.select2-results__option[aria-selected="true"] {
+    background: #eff6ff;
+    color: #1d4ed8;
+} */
+
+input:focus,
+select:focus,
+textarea:focus,
+button:focus,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+.filepond--hopper {
+    margin: 0;
+    border: 0;
 }

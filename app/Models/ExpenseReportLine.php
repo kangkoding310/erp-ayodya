@@ -12,7 +12,7 @@ class ExpenseReportLine extends Model implements HasMedia
 {
     use HasFactory, InteractsWithMedia;
 
-    protected $fillable = ['expense_report_id', 'expense_date', 'expense_category_id', 'description', 'total'];
+    protected $fillable = ['expense_report_id', 'expense_date', 'expense_category_id', 'project_id', 'description', 'total'];
 
     protected function casts(): array
     {
@@ -30,5 +30,10 @@ class ExpenseReportLine extends Model implements HasMedia
     public function expenseCategory(): BelongsTo
     {
         return $this->belongsTo(ProductCategory::class, 'expense_category_id');
+    }
+
+    public function project(): BelongsTo
+    {
+        return $this->belongsTo(Project::class);
     }
 }

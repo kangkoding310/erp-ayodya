@@ -1,6 +1,8 @@
 <script setup lang="ts">
+import Checkbox from '@/Components/Checkbox.vue';
 import SecondaryButton from '@/Components/SecondaryButton.vue';
 import SelectInput from '@/Components/SelectInput.vue';
+import TextInput from '@/Components/TextInput.vue';
 import { useLineItems } from '@/Composables/useLineItems';
 import type { UserOption } from '@/types/models';
 import { computed } from 'vue';
@@ -48,12 +50,7 @@ const { add, remove } = useLineItems<DraftLevel>(
                 <tbody v-auto-animate class="divide-y divide-gray-100">
                     <tr v-for="(level, index) in levels" :key="index">
                         <td class="px-2 py-2">
-                            <input
-                                v-model.number="level.level"
-                                type="number"
-                                min="1"
-                                class="block w-full rounded-md border-gray-300 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                            />
+                            <TextInput v-model.number="level.level" type="number" min="1" size="sm" class="w-full" />
                         </td>
                         <td class="px-2 py-2">
                             <SelectInput
@@ -65,7 +62,7 @@ const { add, remove } = useLineItems<DraftLevel>(
                             />
                         </td>
                         <td class="px-2 py-2 text-center">
-                            <input v-model="level.is_required" type="checkbox" class="rounded border-gray-300 text-blue-600" />
+                            <Checkbox v-model:checked="level.is_required" />
                         </td>
                         <td class="px-2 py-2 text-right">
                             <button type="button" class="text-red-600 hover:underline" @click="remove(index)">&times;</button>

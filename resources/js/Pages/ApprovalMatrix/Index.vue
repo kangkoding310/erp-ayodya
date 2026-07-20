@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import Checkbox from '@/Components/Checkbox.vue';
 import InputError from '@/Components/InputError.vue';
 import InputLabel from '@/Components/InputLabel.vue';
 import Modal from '@/Components/Modal.vue';
@@ -154,7 +155,7 @@ const destroy = (matrix: ApprovalMatrix) => {
                     </div>
 
                     <div class="flex items-center gap-2 sm:col-span-2">
-                        <input id="is_active" v-model="form.is_active" type="checkbox" class="rounded border-gray-300 text-blue-600" />
+                        <Checkbox id="is_active" v-model:checked="form.is_active" />
                         <InputLabel for="is_active" value="Active" />
                     </div>
                 </div>
