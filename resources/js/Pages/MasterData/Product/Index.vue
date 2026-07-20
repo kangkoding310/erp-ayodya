@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import Card from '@/Components/ui/Card.vue';
+import IconButton from '@/Components/ui/IconButton.vue';
 import Pagination from '@/Components/ui/Pagination.vue';
 import { useCurrencyFormat } from '@/Composables/useCurrencyFormat';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import type { Paginated, Product } from '@/types/models';
 import { Head, Link, router } from '@inertiajs/vue3';
+import { Pencil, Trash2 } from '@lucide/vue';
 
 defineProps<{
     products: Paginated<Product>;
@@ -55,10 +57,12 @@ const destroy = (product: Product) => {
                                     <td class="px-4 py-3 text-sm text-gray-700">{{ format(product.price) }}</td>
                                     <td class="px-4 py-3 text-sm text-gray-700">{{ product.tax_percentage }}%</td>
                                     <td class="px-4 py-3 text-right text-sm">
-                                        <Link :href="route('master-data.products.edit', product.id)" class="mr-3 text-blue-600 hover:underline"
-                                            >Edit</Link
-                                        >
-                                        <button class="text-red-600 hover:underline" @click="destroy(product)">Delete</button>
+                                        <IconButton as="Link" :href="route('master-data.products.edit', product.id)" title="Edit" class="mr-2">
+                                            <Pencil class="h-4 w-4" />
+                                        </IconButton>
+                                        <IconButton title="Delete" variant="delete" @click="destroy(product)">
+                                            <Trash2 class="h-4 w-4" />
+                                        </IconButton>
                                     </td>
                                 </tr>
                                 <tr v-if="products.data.length === 0">

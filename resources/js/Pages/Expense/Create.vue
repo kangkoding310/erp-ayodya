@@ -7,12 +7,13 @@ import SelectInput from '@/Components/SelectInput.vue';
 import TextInput from '@/Components/TextInput.vue';
 import Card from '@/Components/ui/Card.vue';
 import FileUpload from '@/Components/ui/FileUpload.vue';
+import IconButton from '@/Components/ui/IconButton.vue';
 import { useCurrencyFormat } from '@/Composables/useCurrencyFormat';
 import { useLineItems } from '@/Composables/useLineItems';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import type { Employee, ExpenseCategory, Project } from '@/types/models';
-import { icons } from '@/Constants/icons';
 import { Head, Link, useForm } from '@inertiajs/vue3';
+import { Trash2 } from '@lucide/vue';
 import { computed } from 'vue';
 
 const props = defineProps<{
@@ -143,15 +144,9 @@ const submit = () => {
                                                     <FileUpload v-model="line.attachment" />
                                                 </td> -->
                                                 <td class="px-2 py-2 text-right">
-                                                    <button
-                                                        type="button"
-                                                        class="inline-flex text-red-600 hover:text-red-700"
-                                                        @click="remove(index)"
-                                                    >
-                                                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" :d="icons.trash" />
-                                                        </svg>
-                                                    </button>
+                                                    <IconButton title="Remove" variant="delete" @click="remove(index)">
+                                                        <Trash2 class="h-4 w-4" />
+                                                    </IconButton>
                                                 </td>
                                             </tr>
                                             <tr>

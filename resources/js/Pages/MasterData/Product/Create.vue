@@ -20,6 +20,8 @@ const categoryOptions = computed(() => props.categories.map((category) => ({ id:
 const form = useForm({
     name: '',
     price: '',
+    user_price: '',
+    partner_price: '',
     tax_percentage: '11',
     type: '',
     product_category_id: '' as number | '',
@@ -44,7 +46,7 @@ const submit = () => {
                     <form class="space-y-4" @submit.prevent="submit">
                         <div>
                             <InputLabel for="name" value="Name" />
-                            <TextInput id="name" v-model="form.name" class="mt-1 block w-full" />
+                            <TextInput id="name" v-model="form.name" placeholder="Enter product name" class="mt-1 block w-full" />
                             <InputError :message="form.errors.name" class="mt-2" />
                         </div>
 
@@ -60,22 +62,33 @@ const submit = () => {
                             <InputError :message="form.errors.product_category_id" class="mt-2" />
                         </div>
 
-                        <div class="grid grid-cols-2 gap-4">
-                            <div>
-                                <InputLabel for="price" value="Price" />
-                                <TextInput id="price" v-model="form.price" type="number" step="0.01" class="mt-1 block w-full" />
-                                <InputError :message="form.errors.price" class="mt-2" />
-                            </div>
-                            <div>
-                                <InputLabel for="tax_percentage" value="Tax %" />
-                                <TextInput id="tax_percentage" v-model="form.tax_percentage" type="number" step="0.01" class="mt-1 block w-full" />
-                                <InputError :message="form.errors.tax_percentage" class="mt-2" />
-                            </div>
+                        <div>
+                            <InputLabel for="price" value="Price" />
+                            <TextInput id="price" v-model="form.price" type="number" step="0.01" placeholder="0.00" class="mt-1 block w-full" />
+                            <InputError :message="form.errors.price" class="mt-2" />
+                        </div>
+
+                        <div>
+                            <InputLabel for="user_price" value="User Price" />
+                            <TextInput id="user_price" v-model="form.user_price" type="number" step="0.01" placeholder="0.00" class="mt-1 block w-full" />
+                            <InputError :message="form.errors.user_price" class="mt-2" />
+                        </div>
+
+                        <div>
+                            <InputLabel for="partner_price" value="Partner Price" />
+                            <TextInput id="partner_price" v-model="form.partner_price" type="number" step="0.01" placeholder="0.00" class="mt-1 block w-full" />
+                            <InputError :message="form.errors.partner_price" class="mt-2" />
+                        </div>
+
+                        <div>
+                            <InputLabel for="tax_percentage" value="Tax %" />
+                            <TextInput id="tax_percentage" v-model="form.tax_percentage" type="number" step="0.01" placeholder="0.00" class="mt-1 block w-full" />
+                            <InputError :message="form.errors.tax_percentage" class="mt-2" />
                         </div>
 
                         <div>
                             <InputLabel for="type" value="Type (optional)" />
-                            <TextInput id="type" v-model="form.type" class="mt-1 block w-full" />
+                            <TextInput id="type" v-model="form.type" placeholder="Enter product type" class="mt-1 block w-full" />
                             <InputError :message="form.errors.type" class="mt-2" />
                         </div>
 

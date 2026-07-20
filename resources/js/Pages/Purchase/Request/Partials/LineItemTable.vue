@@ -2,9 +2,11 @@
 import SecondaryButton from '@/Components/SecondaryButton.vue';
 import SelectInput from '@/Components/SelectInput.vue';
 import TextInput from '@/Components/TextInput.vue';
+import IconButton from '@/Components/ui/IconButton.vue';
 import { useCurrencyFormat } from '@/Composables/useCurrencyFormat';
 import { useLineItems } from '@/Composables/useLineItems';
 import type { Product } from '@/types/models';
+import { Trash2 } from '@lucide/vue';
 import { computed } from 'vue';
 
 export interface DraftLine {
@@ -51,11 +53,11 @@ const onProductChange = (line: DraftLine) => {
             <table class="min-w-full divide-y divide-gray-200">
                 <thead>
                     <tr>
-                        <th class="px-2 py-2 text-left text-xs font-medium uppercase text-gray-500">Product</th>
+                        <th class="px-2 py-2 text-left text-xs font-medium uppercase text-gray-500 w-48">Product</th>
                         <th class="px-2 py-2 text-left text-xs font-medium uppercase text-gray-500">Description</th>
                         <th class="w-24 px-2 py-2 text-left text-xs font-medium uppercase text-gray-500">Qty</th>
                         <th class="w-36 px-2 py-2 text-left text-xs font-medium uppercase text-gray-500">Price</th>
-                        <th class="w-36 px-2 py-2 text-left text-xs font-medium uppercase text-gray-500">Subtotal</th>
+                        <th class="w-36 px-2 py-2 text-right text-xs font-medium uppercase text-gray-500">Subtotal</th>
                         <th class="w-10" />
                     </tr>
                 </thead>
@@ -80,11 +82,13 @@ const onProductChange = (line: DraftLine) => {
                         <td class="px-2 py-2">
                             <TextInput v-model.number="line.price_estimate" type="number" min="0" step="0.01" size="sm" class="w-full" />
                         </td>
-                        <td class="px-2 py-2 text-sm text-gray-700">
+                        <td class="px-2 py-2 text-right text-sm text-gray-700">
                             {{ format(Number(line.qty) * Number(line.price_estimate)) }}
                         </td>
                         <td class="px-2 py-2 text-right">
-                            <button type="button" class="text-red-600 hover:underline" @click="remove(index)">&times;</button>
+                            <IconButton title="Remove" variant="delete" @click="remove(index)">
+                                <Trash2 class="h-4 w-4" />
+                            </IconButton>
                         </td>
                     </tr>
                     <tr v-if="lines.length === 0">

@@ -31,18 +31,50 @@ class ExpenseReportController extends Controller
             ->whereHas('approvalMatrix.purchaseType', fn ($q) => $q->where('name', 'Expense'))
             ->exists();
 
+        $sortable = ['code', 'employee', 'total_expense', 'status', 'created_at'];
+        $sort = in_array($request->string('sort')->value(), $sortable, true) ? $request->string('sort')->value() : 'created_at';
+        $direction = $request->string('direction')->value() === 'asc' ? 'asc' : 'desc';
+
+        $baseQuery = ExpenseReport::query()
+            ->when(
+                ! $isApprover,
+                fn ($q) => $q->whereHas('employee', fn ($q) => $q->where('user_id', $userId))
+            );
+
+        $totalRange = [
+            'min' => 0,
+            'max' => (int) ceil((clone $baseQuery)->max('total_expense') ?? 0),
+        ];
+
+        $expenseReports = (clone $baseQuery)
+            ->with('employee:id,name')
+            ->when($request->string('status')->value(), fn ($q, $status) => $q->where('status', $status))
+            ->when($request->string('employee_id')->value(), fn ($q, $employeeId) => $q->where('employee_id', $employeeId))
+            ->when($request->string('search')->value(), fn ($q, $search) => $q->where(function ($q) use ($search) {
+                $q->where('code', 'ilike', "%{$search}%")
+                    ->orWhereHas('employee', fn ($q) => $q->where('name', 'ilike', "%{$search}%"));
+            }))
+            ->when($request->filled('min_total'), fn ($q) => $q->where('total_expense', '>=', $request->float('min_total')))
+            ->when($request->filled('max_total'), fn ($q) => $q->where('total_expense', '<=', $request->float('max_total')))
+            ->when(
+                $sort === 'employee',
+                fn ($q) => $q->join('employees', 'employees.id', '=', 'expense_reports.employee_id')
+                    ->orderBy('employees.name', $direction)
+                    ->select('expense_reports.*'),
+                fn ($q) => $q->orderBy($sort, $direction)
+            )
+            ->paginate(15)
+            ->withQueryString();
+
         return Inertia::render('Expense/Index', [
-            'expenseReports' => ExpenseReport::query()
-                ->with('employee:id,name')
-                ->when(
-                    ! $isApprover,
-                    fn ($q) => $q->whereHas('employee', fn ($q) => $q->where('user_id', $userId))
-                )
-                ->when($request->string('status')->value(), fn ($q, $status) => $q->where('status', $status))
-                ->latest()
-                ->paginate(15)
-                ->withQueryString(),
-            'filters' => $request->only('status'),
+            'expenseReports' => $expenseReports,
+            'employees' => Employee::orderBy('name')->get(['id', 'name']),
+            'statuses' => collect(ExpenseStatus::cases())->map(fn ($status) => [
+                'id' => $status->value,
+                'text' => $status->label(),
+            ])->values(),
+            'totalRange' => $totalRange,
+            'filters' => $request->only('status', 'employee_id', 'search', 'min_total', 'max_total', 'sort', 'direction'),
         ]);
     }
 

@@ -3,8 +3,10 @@ import Checkbox from '@/Components/Checkbox.vue';
 import SecondaryButton from '@/Components/SecondaryButton.vue';
 import SelectInput from '@/Components/SelectInput.vue';
 import TextInput from '@/Components/TextInput.vue';
+import IconButton from '@/Components/ui/IconButton.vue';
 import { useLineItems } from '@/Composables/useLineItems';
 import type { UserOption } from '@/types/models';
+import { Trash2 } from '@lucide/vue';
 import { computed } from 'vue';
 
 export interface DraftLevel {
@@ -65,7 +67,9 @@ const { add, remove } = useLineItems<DraftLevel>(
                             <Checkbox v-model:checked="level.is_required" />
                         </td>
                         <td class="px-2 py-2 text-right">
-                            <button type="button" class="text-red-600 hover:underline" @click="remove(index)">&times;</button>
+                            <IconButton title="Remove" variant="delete" @click="remove(index)">
+                                <Trash2 class="h-4 w-4" />
+                            </IconButton>
                         </td>
                     </tr>
                     <tr v-if="levels.length === 0">

@@ -8,10 +8,12 @@ import SecondaryButton from '@/Components/SecondaryButton.vue';
 import SelectInput from '@/Components/SelectInput.vue';
 import TextInput from '@/Components/TextInput.vue';
 import Card from '@/Components/ui/Card.vue';
+import IconButton from '@/Components/ui/IconButton.vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import MatrixLevelForm, { type DraftLevel } from '@/Pages/ApprovalMatrix/Partials/MatrixLevelForm.vue';
 import type { ApprovalMatrix, PurchaseType, UserOption } from '@/types/models';
 import { Head, router, useForm } from '@inertiajs/vue3';
+import { Pencil, Trash2 } from '@lucide/vue';
 import { computed, ref } from 'vue';
 
 const props = defineProps<{
@@ -98,30 +100,46 @@ const destroy = (matrix: ApprovalMatrix) => {
         </template>
 
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3" v-auto-animate>
-            <Card v-for="matrix in approvalMatrices" :key="matrix.id">
-                <div class="flex items-start justify-between gap-2">
-                    <div class="min-w-0">
-                        <h3 class="truncate text-base font-semibold text-gray-800">{{ matrix.name }}</h3>
-                        <p class="text-sm text-gray-500">
-                            {{ matrix.purchase_type?.name ?? 'All purchase types' }}
-                        </p>
+            <Card v-for="matrix in approvalMatrices" :key="matrix.id" :padded="false">
+                <div class="flex h-full flex-col">
+                    <div class="flex items-start justify-between gap-2 p-5">
+                        <div class="min-w-0">
+                            <h3 class="truncate text-base font-semibold text-gray-800">{{ matrix.name }}</h3>
+                            <p class="mt-0.5 text-sm text-gray-500">
+                                {{ matrix.purchase_type?.name ?? 'All purchase types' }}
+                            </p>
+                        </div>
+                        <span
+                            class="shrink-0 rounded-full px-2 py-0.5 text-xs font-medium"
+                            :class="matrix.is_active ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-600'"
+                        >
+                            {{ matrix.is_active ? 'Active' : 'Inactive' }}
+                        </span>
                     </div>
-                    <span v-if="!matrix.is_active" class="shrink-0 rounded-full bg-red-50 px-2 py-0.5 text-xs font-medium text-red-600">
-                        Inactive
-                    </span>
-                </div>
 
-                <ol class="mt-4 space-y-1">
-                    <li v-for="level in matrix.levels" :key="level.id" class="text-sm text-gray-700">
-                        <span class="font-medium">Level {{ level.level }}:</span>
-                        {{ level.approver?.name }}
-                        <span v-if="!level.is_required" class="text-gray-400">(optional)</span>
-                    </li>
-                </ol>
+                    <ol class="flex items-center gap-4 flex-1 border-t border-gray-100 px-5 py-4">
+                        <li v-for="level in matrix.levels" :key="level.id" class="flex items-center gap-2">
+                            <span
+                                class="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-blue-50 text-xs font-semibold text-blue-600"
+                            >
+                                {{ level.level }}
+                            </span>
+                            <p class="text-sm text-gray-700">
+                                {{ level.approver?.name }}
+                                <span v-if="!level.is_required" class="text-gray-400">(optional)</span>
+                            </p>
+                        </li>
+                        <li v-if="matrix.levels?.length === 0" class="text-sm text-gray-400">No levels configured.</li>
+                    </ol>
 
-                <div class="mt-4 flex justify-end gap-3 border-t border-gray-100 pt-3 text-sm">
-                    <button class="text-blue-600 hover:underline" @click="openEdit(matrix)">Edit</button>
-                    <button class="text-red-600 hover:underline" @click="destroy(matrix)">Delete</button>
+                    <div class="flex justify-end gap-1 border-t border-gray-100 p-2">
+                        <IconButton title="Edit" @click="openEdit(matrix)">
+                            <Pencil class="h-4 w-4" />
+                        </IconButton>
+                        <IconButton title="Delete" variant="delete" @click="destroy(matrix)">
+                            <Trash2 class="h-4 w-4" />
+                        </IconButton>
+                    </div>
                 </div>
             </Card>
 

@@ -6,10 +6,12 @@ import PrimaryButton from '@/Components/PrimaryButton.vue';
 import SecondaryButton from '@/Components/SecondaryButton.vue';
 import TextInput from '@/Components/TextInput.vue';
 import Card from '@/Components/ui/Card.vue';
+import IconButton from '@/Components/ui/IconButton.vue';
 import Pagination from '@/Components/ui/Pagination.vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import type { Paginated, ProductCategory } from '@/types/models';
 import { Head, router, useForm } from '@inertiajs/vue3';
+import { Pencil, Trash2 } from '@lucide/vue';
 import { ref } from 'vue';
 
 defineProps<{
@@ -87,8 +89,12 @@ const destroy = (category: ProductCategory) => {
                                     <td class="px-4 py-3 text-sm text-gray-700">{{ category.code }}</td>
                                     <td class="px-4 py-3 text-sm text-gray-700">{{ category.name }}</td>
                                     <td class="px-4 py-3 text-right text-sm">
-                                        <button class="mr-3 text-blue-600 hover:underline" @click="openEdit(category)">Edit</button>
-                                        <button class="text-red-600 hover:underline" @click="destroy(category)">Delete</button>
+                                        <IconButton title="Edit" class="mr-2" @click="openEdit(category)">
+                                            <Pencil class="h-4 w-4" />
+                                        </IconButton>
+                                        <IconButton title="Delete" variant="delete" @click="destroy(category)">
+                                            <Trash2 class="h-4 w-4" />
+                                        </IconButton>
                                     </td>
                                 </tr>
                                 <tr v-if="productCategories.data.length === 0">

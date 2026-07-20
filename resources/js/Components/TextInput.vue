@@ -6,7 +6,7 @@ withDefaults(
         size?: 'default' | 'sm';
     }>(),
     {
-        size: 'default',
+        size: 'sm',
     },
 );
 
