@@ -73,8 +73,8 @@ const destroy = (purchaseType: PurchaseType) => {
             </div>
         </template>
 
-        <div class="py-8">
-            <div class="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
+        <div class="py-1">
+            <div class="mx-auto max-w-6xl ">
                 <Card :padded="false">
                     <div class="overflow-x-auto">
                         <table class="min-w-full divide-y divide-gray-200">

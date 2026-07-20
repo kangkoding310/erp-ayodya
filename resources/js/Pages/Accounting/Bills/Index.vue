@@ -28,8 +28,8 @@ const sourceCode = (bill: AccountingBill) => {
             <h2 class="text-xl font-semibold leading-tight text-gray-800">Accounting Bills</h2>
         </template>
 
-        <div class="py-8">
-            <div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+        <div class="py-1">
+            <div class="mx-auto max-w-6xl ">
                 <Card :padded="false">
                     <div class="overflow-x-auto">
                         <table class="min-w-full divide-y divide-gray-200">

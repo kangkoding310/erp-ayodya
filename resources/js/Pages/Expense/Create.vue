@@ -66,7 +66,7 @@ const submit = () => {
         </template>
 
         <div class="py-8">
-            <div class="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
+            <div class="mx-auto ">
                 <Card>
                     <form class="space-y-6" @submit.prevent="submit">
                         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
