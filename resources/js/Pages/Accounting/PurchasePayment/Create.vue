@@ -3,16 +3,27 @@ import InputError from '@/Components/InputError.vue';
 import InputLabel from '@/Components/InputLabel.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import SecondaryButton from '@/Components/SecondaryButton.vue';
+import SelectInput from '@/Components/SelectInput.vue';
 import TextInput from '@/Components/TextInput.vue';
 import Card from '@/Components/ui/Card.vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import type { Bank, PurchaseInvoice } from '@/types/models';
 import { Head, Link, useForm } from '@inertiajs/vue3';
+import { computed } from 'vue';
 
-defineProps<{
+const props = defineProps<{
     purchaseInvoices: PurchaseInvoice[];
     banks: Bank[];
 }>();
+
+const purchaseInvoiceOptions = computed(() =>
+    props.purchaseInvoices.map((invoice) => ({
+        id: invoice.id,
+        text: `${invoice.invoice_number} (${invoice.purchase_rfq?.purchase_request?.code ?? ''})`,
+    })),
+);
+
+const bankOptions = computed(() => props.banks.map((bank) => ({ id: bank.id, text: bank.bank_name })));
 
 const form = useForm({
     purchase_invoice_id: '' as number | '',
@@ -40,29 +51,25 @@ const submit = () => {
                     <form class="space-y-4" @submit.prevent="submit">
                         <div>
                             <InputLabel for="purchase_invoice_id" value="Purchase Invoice" />
-                            <select
+                            <SelectInput
                                 id="purchase_invoice_id"
                                 v-model="form.purchase_invoice_id"
-                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                            >
-                                <option value="" disabled>Select invoice</option>
-                                <option v-for="invoice in purchaseInvoices" :key="invoice.id" :value="invoice.id">
-                                    {{ invoice.invoice_number }} ({{ invoice.purchase_rfq?.purchase_request?.code }})
-                                </option>
-                            </select>
+                                :options="purchaseInvoiceOptions"
+                                placeholder="Select invoice"
+                                class="mt-1 block w-full"
+                            />
                             <InputError :message="form.errors.purchase_invoice_id" class="mt-2" />
                         </div>
 
                         <div>
                             <InputLabel for="bank_id" value="Bank" />
-                            <select
+                            <SelectInput
                                 id="bank_id"
                                 v-model="form.bank_id"
-                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                            >
-                                <option value="" disabled>Select bank</option>
-                                <option v-for="bank in banks" :key="bank.id" :value="bank.id">{{ bank.bank_name }}</option>
-                            </select>
+                                :options="bankOptions"
+                                placeholder="Select bank"
+                                class="mt-1 block w-full"
+                            />
                             <InputError :message="form.errors.bank_id" class="mt-2" />
                         </div>
 

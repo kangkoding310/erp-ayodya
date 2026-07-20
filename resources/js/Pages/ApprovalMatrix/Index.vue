@@ -4,6 +4,7 @@ import InputLabel from '@/Components/InputLabel.vue';
 import Modal from '@/Components/Modal.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import SecondaryButton from '@/Components/SecondaryButton.vue';
+import SelectInput from '@/Components/SelectInput.vue';
 import TextInput from '@/Components/TextInput.vue';
 import Card from '@/Components/ui/Card.vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
@@ -35,6 +36,8 @@ const form = useForm<{
     is_active: true,
     levels: [{ level: 1, approver_id: '', is_required: true }],
 });
+
+const purchaseTypeOptions = computed(() => props.purchaseTypes.map((type) => ({ id: type.id, text: type.name })));
 
 const levelsRef = computed({
     get: () => form.levels,
@@ -139,14 +142,14 @@ const destroy = (matrix: ApprovalMatrix) => {
 
                     <div>
                         <InputLabel for="purchase_type_id" value="Purchase Type (optional)" />
-                        <select
+                        <SelectInput
                             id="purchase_type_id"
                             v-model="form.purchase_type_id"
-                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                        >
-                            <option value="">All purchase types</option>
-                            <option v-for="type in purchaseTypes" :key="type.id" :value="type.id">{{ type.name }}</option>
-                        </select>
+                            :options="purchaseTypeOptions"
+                            placeholder="All purchase types"
+                            allow-clear
+                            class="mt-1 block w-full"
+                        />
                         <InputError :message="form.errors.purchase_type_id" class="mt-2" />
                     </div>
 

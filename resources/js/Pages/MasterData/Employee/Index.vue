@@ -4,19 +4,22 @@ import InputLabel from '@/Components/InputLabel.vue';
 import Modal from '@/Components/Modal.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import SecondaryButton from '@/Components/SecondaryButton.vue';
+import SelectInput from '@/Components/SelectInput.vue';
 import TextInput from '@/Components/TextInput.vue';
 import Card from '@/Components/ui/Card.vue';
 import Pagination from '@/Components/ui/Pagination.vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import type { Division, Employee, Paginated } from '@/types/models';
 import { Head, router, useForm } from '@inertiajs/vue3';
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 
-defineProps<{
+const props = defineProps<{
     employees: Paginated<Employee>;
     divisions: Division[];
     filters: { search?: string };
 }>();
+
+const divisionOptions = computed(() => props.divisions.map((division) => ({ id: division.id, text: division.name })));
 
 const showModal = ref(false);
 const editing = ref<Employee | null>(null);
@@ -125,14 +128,13 @@ const destroy = (employee: Employee) => {
 
                 <div class="mt-4">
                     <InputLabel for="division_id" value="Division" />
-                    <select
+                    <SelectInput
                         id="division_id"
                         v-model="form.division_id"
-                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                    >
-                        <option value="" disabled>Select division</option>
-                        <option v-for="division in divisions" :key="division.id" :value="division.id">{{ division.name }}</option>
-                    </select>
+                        :options="divisionOptions"
+                        placeholder="Select division"
+                        class="mt-1 block w-full"
+                    />
                     <InputError :message="form.errors.division_id" class="mt-2" />
                 </div>
 

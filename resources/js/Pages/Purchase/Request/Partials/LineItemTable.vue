@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import SecondaryButton from '@/Components/SecondaryButton.vue';
+import SelectInput from '@/Components/SelectInput.vue';
 import { useCurrencyFormat } from '@/Composables/useCurrencyFormat';
 import { useLineItems } from '@/Composables/useLineItems';
 import type { Product } from '@/types/models';
@@ -26,6 +27,8 @@ const lines = computed({
 });
 
 const { format } = useCurrencyFormat();
+
+const productOptions = computed(() => props.products.map((product) => ({ id: product.id, text: product.name })));
 
 const { add, remove, total } = useLineItems<DraftLine>(
     lines,
@@ -58,14 +61,14 @@ const onProductChange = (line: DraftLine) => {
                 <tbody v-auto-animate class="divide-y divide-gray-100">
                     <tr v-for="(line, index) in lines" :key="index">
                         <td class="px-2 py-2">
-                            <select
+                            <SelectInput
                                 v-model="line.product_id"
-                                class="block w-full rounded-md border-gray-300 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                                :options="productOptions"
+                                placeholder="Select product"
+                                size="sm"
+                                class="block w-full"
                                 @change="onProductChange(line)"
-                            >
-                                <option value="" disabled>Select product</option>
-                                <option v-for="product in products" :key="product.id" :value="product.id">{{ product.name }}</option>
-                            </select>
+                            />
                         </td>
                         <td class="px-2 py-2">
                             <input

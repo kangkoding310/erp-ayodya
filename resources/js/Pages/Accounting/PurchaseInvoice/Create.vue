@@ -3,15 +3,21 @@ import InputError from '@/Components/InputError.vue';
 import InputLabel from '@/Components/InputLabel.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import SecondaryButton from '@/Components/SecondaryButton.vue';
+import SelectInput from '@/Components/SelectInput.vue';
 import TextInput from '@/Components/TextInput.vue';
 import Card from '@/Components/ui/Card.vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import type { PurchaseRfq } from '@/types/models';
 import { Head, Link, useForm } from '@inertiajs/vue3';
+import { computed } from 'vue';
 
-defineProps<{
+const props = defineProps<{
     purchaseRfqs: PurchaseRfq[];
 }>();
+
+const purchaseRfqOptions = computed(() =>
+    props.purchaseRfqs.map((rfq) => ({ id: rfq.id, text: rfq.purchase_request?.code ?? '' })),
+);
 
 const form = useForm({
     purchase_rfq_id: '' as number | '',
@@ -39,16 +45,13 @@ const submit = () => {
                     <form class="space-y-4" @submit.prevent="submit">
                         <div>
                             <InputLabel for="purchase_rfq_id" value="Purchase Request (RFQ)" />
-                            <select
+                            <SelectInput
                                 id="purchase_rfq_id"
                                 v-model="form.purchase_rfq_id"
-                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                            >
-                                <option value="" disabled>Select RFQ</option>
-                                <option v-for="rfq in purchaseRfqs" :key="rfq.id" :value="rfq.id">
-                                    {{ rfq.purchase_request?.code }}
-                                </option>
-                            </select>
+                                :options="purchaseRfqOptions"
+                                placeholder="Select RFQ"
+                                class="mt-1 block w-full"
+                            />
                             <InputError :message="form.errors.purchase_rfq_id" class="mt-2" />
                         </div>
 

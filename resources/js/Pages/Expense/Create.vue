@@ -3,6 +3,7 @@ import InputError from '@/Components/InputError.vue';
 import InputLabel from '@/Components/InputLabel.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import SecondaryButton from '@/Components/SecondaryButton.vue';
+import SelectInput from '@/Components/SelectInput.vue';
 import TextInput from '@/Components/TextInput.vue';
 import Card from '@/Components/ui/Card.vue';
 import FileUpload from '@/Components/ui/FileUpload.vue';
@@ -13,10 +14,13 @@ import type { Employee, ExpenseCategory } from '@/types/models';
 import { Head, Link, useForm } from '@inertiajs/vue3';
 import { computed } from 'vue';
 
-defineProps<{
+const props = defineProps<{
     employees: Employee[];
     expenseCategories: ExpenseCategory[];
 }>();
+
+const employeeOptions = computed(() => props.employees.map((employee) => ({ id: employee.id, text: employee.name })));
+const expenseCategoryOptions = computed(() => props.expenseCategories.map((category) => ({ id: category.id, text: category.name })));
 
 interface DraftLine {
     expense_date: string;
@@ -68,14 +72,13 @@ const submit = () => {
                         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
                             <div>
                                 <InputLabel for="employee_id" value="Employee" />
-                                <select
+                                <SelectInput
                                     id="employee_id"
                                     v-model="form.employee_id"
-                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                                >
-                                    <option value="" disabled>Select employee</option>
-                                    <option v-for="employee in employees" :key="employee.id" :value="employee.id">{{ employee.name }}</option>
-                                </select>
+                                    :options="employeeOptions"
+                                    placeholder="Select employee"
+                                    class="mt-1 block w-full"
+                                />
                                 <InputError :message="form.errors.employee_id" class="mt-2" />
                             </div>
 
@@ -110,15 +113,13 @@ const submit = () => {
                                                 />
                                             </td>
                                             <td class="px-2 py-2">
-                                                <select
+                                                <SelectInput
                                                     v-model="line.expense_category_id"
-                                                    class="block w-full rounded-md border-gray-300 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                                                >
-                                                    <option value="" disabled>Select category</option>
-                                                    <option v-for="category in expenseCategories" :key="category.id" :value="category.id">
-                                                        {{ category.name }}
-                                                    </option>
-                                                </select>
+                                                    :options="expenseCategoryOptions"
+                                                    placeholder="Select category"
+                                                    size="sm"
+                                                    class="block w-full"
+                                                />
                                             </td>
                                             <td class="px-2 py-2">
                                                 <input

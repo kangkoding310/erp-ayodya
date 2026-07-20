@@ -3,16 +3,20 @@ import InputError from '@/Components/InputError.vue';
 import InputLabel from '@/Components/InputLabel.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import SecondaryButton from '@/Components/SecondaryButton.vue';
+import SelectInput from '@/Components/SelectInput.vue';
 import TextInput from '@/Components/TextInput.vue';
 import Card from '@/Components/ui/Card.vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import type { Product, ProductCategory } from '@/types/models';
 import { Head, Link, useForm } from '@inertiajs/vue3';
+import { computed } from 'vue';
 
 const props = defineProps<{
     product: Product;
     categories: ProductCategory[];
 }>();
+
+const categoryOptions = computed(() => props.categories.map((category) => ({ id: category.id, text: category.name })));
 
 const form = useForm({
     name: props.product.name,
@@ -47,14 +51,13 @@ const submit = () => {
 
                         <div>
                             <InputLabel for="product_category_id" value="Category" />
-                            <select
+                            <SelectInput
                                 id="product_category_id"
                                 v-model="form.product_category_id"
-                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                            >
-                                <option value="" disabled>Select category</option>
-                                <option v-for="category in categories" :key="category.id" :value="category.id">{{ category.name }}</option>
-                            </select>
+                                :options="categoryOptions"
+                                placeholder="Select category"
+                                class="mt-1 block w-full"
+                            />
                             <InputError :message="form.errors.product_category_id" class="mt-2" />
                         </div>
 

@@ -3,19 +3,25 @@ import InputError from '@/Components/InputError.vue';
 import InputLabel from '@/Components/InputLabel.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import SecondaryButton from '@/Components/SecondaryButton.vue';
+import SelectInput from '@/Components/SelectInput.vue';
 import TextInput from '@/Components/TextInput.vue';
 import Card from '@/Components/ui/Card.vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import LineItemTable, { type DraftLine } from '@/Pages/Purchase/Request/Partials/LineItemTable.vue';
 import type { Division, Employee, Product, PurchaseType } from '@/types/models';
 import { Head, Link, useForm } from '@inertiajs/vue3';
+import { computed } from 'vue';
 
-defineProps<{
+const props = defineProps<{
     purchaseTypes: PurchaseType[];
     employees: Employee[];
     divisions: Division[];
     products: Product[];
 }>();
+
+const purchaseTypeOptions = computed(() => props.purchaseTypes.map((type) => ({ id: type.id, text: type.name })));
+const employeeOptions = computed(() => props.employees.map((employee) => ({ id: employee.id, text: employee.name })));
+const divisionOptions = computed(() => props.divisions.map((division) => ({ id: division.id, text: division.name })));
 
 const form = useForm<{
     purchase_type_id: number | '';
@@ -55,14 +61,13 @@ const submit = () => {
                         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
                             <div>
                                 <InputLabel for="purchase_type_id" value="Purchase Type" />
-                                <select
+                                <SelectInput
                                     id="purchase_type_id"
                                     v-model="form.purchase_type_id"
-                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                                >
-                                    <option value="" disabled>Select purchase type</option>
-                                    <option v-for="type in purchaseTypes" :key="type.id" :value="type.id">{{ type.name }}</option>
-                                </select>
+                                    :options="purchaseTypeOptions"
+                                    placeholder="Select purchase type"
+                                    class="mt-1 block w-full"
+                                />
                                 <InputError :message="form.errors.purchase_type_id" class="mt-2" />
                             </div>
 
@@ -74,27 +79,25 @@ const submit = () => {
 
                             <div>
                                 <InputLabel for="employee_id" value="Requested For (Employee)" />
-                                <select
+                                <SelectInput
                                     id="employee_id"
                                     v-model="form.employee_id"
-                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                                >
-                                    <option value="" disabled>Select employee</option>
-                                    <option v-for="employee in employees" :key="employee.id" :value="employee.id">{{ employee.name }}</option>
-                                </select>
+                                    :options="employeeOptions"
+                                    placeholder="Select employee"
+                                    class="mt-1 block w-full"
+                                />
                                 <InputError :message="form.errors.employee_id" class="mt-2" />
                             </div>
 
                             <div>
                                 <InputLabel for="division_id" value="Division" />
-                                <select
+                                <SelectInput
                                     id="division_id"
                                     v-model="form.division_id"
-                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                                >
-                                    <option value="" disabled>Select division</option>
-                                    <option v-for="division in divisions" :key="division.id" :value="division.id">{{ division.name }}</option>
-                                </select>
+                                    :options="divisionOptions"
+                                    placeholder="Select division"
+                                    class="mt-1 block w-full"
+                                />
                                 <InputError :message="form.errors.division_id" class="mt-2" />
                             </div>
 

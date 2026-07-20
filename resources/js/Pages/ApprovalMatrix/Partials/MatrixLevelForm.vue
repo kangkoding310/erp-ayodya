@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import SecondaryButton from '@/Components/SecondaryButton.vue';
+import SelectInput from '@/Components/SelectInput.vue';
 import { useLineItems } from '@/Composables/useLineItems';
 import type { UserOption } from '@/types/models';
 import { computed } from 'vue';
@@ -22,6 +23,8 @@ const levels = computed({
     get: () => props.levels,
     set: (value) => emit('update:levels', value),
 });
+
+const userOptions = computed(() => props.users.map((user) => ({ id: user.id, text: user.name })));
 
 const { add, remove } = useLineItems<DraftLevel>(
     levels,
@@ -53,13 +56,13 @@ const { add, remove } = useLineItems<DraftLevel>(
                             />
                         </td>
                         <td class="px-2 py-2">
-                            <select
+                            <SelectInput
                                 v-model="level.approver_id"
-                                class="block w-full rounded-md border-gray-300 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                            >
-                                <option value="" disabled>Select approver</option>
-                                <option v-for="user in users" :key="user.id" :value="user.id">{{ user.name }}</option>
-                            </select>
+                                :options="userOptions"
+                                placeholder="Select approver"
+                                size="sm"
+                                class="block w-full"
+                            />
                         </td>
                         <td class="px-2 py-2 text-center">
                             <input v-model="level.is_required" type="checkbox" class="rounded border-gray-300 text-blue-600" />

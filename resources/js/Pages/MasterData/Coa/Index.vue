@@ -4,19 +4,22 @@ import InputLabel from '@/Components/InputLabel.vue';
 import Modal from '@/Components/Modal.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import SecondaryButton from '@/Components/SecondaryButton.vue';
+import SelectInput from '@/Components/SelectInput.vue';
 import TextInput from '@/Components/TextInput.vue';
 import Card from '@/Components/ui/Card.vue';
 import Pagination from '@/Components/ui/Pagination.vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import type { Coa, Paginated, Product } from '@/types/models';
 import { Head, router, useForm } from '@inertiajs/vue3';
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 
-defineProps<{
+const props = defineProps<{
     coa: Paginated<Coa>;
     products: Product[];
     filters: { search?: string };
 }>();
+
+const productOptions = computed(() => props.products.map((product) => ({ id: product.id, text: product.name })));
 
 const showModal = ref(false);
 const editing = ref<Coa | null>(null);
@@ -131,14 +134,14 @@ const destroy = (account: Coa) => {
 
                 <div class="mt-4">
                     <InputLabel for="product_id" value="Product (optional)" />
-                    <select
+                    <SelectInput
                         id="product_id"
                         v-model="form.product_id"
-                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                    >
-                        <option value="">None</option>
-                        <option v-for="product in products" :key="product.id" :value="product.id">{{ product.name }}</option>
-                    </select>
+                        :options="productOptions"
+                        placeholder="None"
+                        allow-clear
+                        class="mt-1 block w-full"
+                    />
                     <InputError :message="form.errors.product_id" class="mt-2" />
                 </div>
 
