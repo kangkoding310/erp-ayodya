@@ -11,7 +11,7 @@ import Card from '@/Components/ui/Card.vue';
 import { useCurrencyFormat } from '@/Composables/useCurrencyFormat';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import type { ExpenseHistoryEvent, ExpenseReport, ExpenseReportLine } from '@/types/models';
-import { Head, router } from '@inertiajs/vue3';
+import { Head, router, usePage } from '@inertiajs/vue3';
 import { formatDate } from '@vueuse/core';
 import { computed, reactive, ref } from 'vue';
 
@@ -23,6 +23,7 @@ const props = defineProps<{
 
 const { format } = useCurrencyFormat();
 
+const authUserId = computed(() => usePage().props.auth.user.id);
 const myTurnSet = computed(() => new Set(props.myTurnLineIds));
 const selected = ref<Set<number>>(new Set());
 
@@ -42,8 +43,24 @@ const toggleLine = (id: number) => {
 
 const selectedLines = computed(() => (props.expenseReport.lines ?? []).filter((line) => selected.value.has(line.id)));
 
+// Status shown per line depends on the viewer: if it's their turn, "Your turn"
+// takes priority; otherwise, if they already decided on this line as an approver,
+// show their own decision (e.g. a level-2 approver who already approved sees
+// "Approved" even while a lower level is still pending); everyone else (the
+// requester, approvers at a level not yet reached, etc.) sees the line's overall status.
 const lineStatus = (line: ExpenseReportLine) => {
     if (myTurnSet.value.has(line.id)) return null;
+
+    // A line can go through the approval matrix more than once (rejected, then
+    // resubmitted), so an approver may have a decision row in more than one cycle —
+    // only the latest cycle's decision reflects where things actually stand now.
+    const myApproval = (line.line_approvals ?? [])
+        .filter((approval) => approval.approver_id === authUserId.value)
+        .sort((a, b) => b.cycle - a.cycle)[0];
+    if (myApproval && myApproval.status !== 'pending') {
+        return myApproval.status;
+    }
+
     return line.status;
 };
 
@@ -138,9 +155,9 @@ const confirmReject = (payload: { lines: { line_id: number; remarks: string }[];
                                 </PrimaryButton>
                             </div>
                         </div>
-                        <div class="overflow-x-auto">
+                        <div class="max-h-[28rem] overflow-y-auto overflow-x-auto rounded-md border border-gray-100">
                             <table class="min-w-full divide-y divide-gray-200">
-                                <thead>
+                                <thead class="sticky top-0 z-10 bg-gray-50">
                                     <tr>
                                         <th class="w-8 px-2 py-2">
                                             <Checkbox v-if="myTurnLineIds.length" :checked="allEligibleSelected" @update:checked="toggleAll" />

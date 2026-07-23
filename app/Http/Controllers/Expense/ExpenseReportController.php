@@ -18,6 +18,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -133,7 +134,12 @@ class ExpenseReportController extends Controller
 
     public function update(Request $request, ExpenseReport $expenseReport): RedirectResponse
     {
-        $validated = $this->validated($request);
+        abort_unless($expenseReport->employee->user_id === Auth::id(), 403);
+        abort_unless($expenseReport->status === ExpenseStatus::Draft, 409);
+
+        $expenseReport->loadMissing('lines.media');
+
+        $validated = $this->validated($request, $expenseReport);
 
         DB::transaction(function () use ($validated, $expenseReport) {
             $expenseReport->update([
@@ -141,8 +147,7 @@ class ExpenseReportController extends Controller
                 'summary' => $validated['summary'] ?? null,
             ]);
 
-            $expenseReport->lines()->delete();
-            $this->syncLines($expenseReport, $validated['lines']);
+            $this->syncLinesForUpdate($expenseReport, $validated['lines']);
         });
 
         return redirect()->route('expense.reports.show', $expenseReport)->with('success', 'Expense report updated.');
@@ -265,18 +270,70 @@ class ExpenseReportController extends Controller
         }
     }
 
-    private function validated(Request $request): array
+    /**
+     * Like syncLines(), but diffs against the report's existing lines instead of wiping
+     * them all: lines the requester removed are deleted, lines they kept are updated in
+     * place (so an untouched line keeps its existing attachment), and only lines without
+     * an id are newly created.
+     */
+    private function syncLinesForUpdate(ExpenseReport $expenseReport, array $lines): void
+    {
+        $existingIds = $expenseReport->lines->pluck('id')->all();
+        $keptIds = collect($lines)->pluck('id')->filter()->map(fn ($id) => (int) $id)->all();
+
+        $expenseReport->lines()->whereIn('id', array_diff($existingIds, $keptIds))->delete();
+
+        foreach ($lines as $line) {
+            $attachment = $line['attachment'] ?? null;
+            $lineId = isset($line['id']) ? (int) $line['id'] : null;
+            unset($line['attachment'], $line['id']);
+
+            if ($lineId && in_array($lineId, $existingIds, true)) {
+                $expenseReportLine = $expenseReport->lines()->whereKey($lineId)->firstOrFail();
+                $expenseReportLine->update($line);
+            } else {
+                $expenseReportLine = $expenseReport->lines()->create($line);
+            }
+
+            if ($attachment) {
+                $expenseReportLine->clearMediaCollection('attachments');
+                $expenseReportLine->addMedia($attachment)->toMediaCollection('attachments');
+            }
+        }
+    }
+
+    private function validated(Request $request, ?ExpenseReport $expenseReport = null): array
     {
         return $request->validate([
             'employee_id' => ['required', 'exists:employees,id'],
             'summary' => ['nullable', 'string', 'max:255'],
             'lines' => ['required', 'array', 'min:1'],
+            'lines.*.id' => ['nullable', 'integer'],
             'lines.*.expense_date' => ['required', 'date'],
             'lines.*.expense_category_id' => ['required', 'exists:product_categories,id'],
             'lines.*.project_id' => ['required', 'exists:projects,id'],
             'lines.*.description' => ['nullable', 'string'],
-            'lines.*.total' => ['required', 'numeric', 'min:0'],
-            'lines.*.attachment' => ['required', 'file', 'max:5120', 'mimes:jpg,jpeg,png,pdf'],
+            'lines.*.total' => ['required', 'numeric', 'gt:0'],
+            'lines.*.attachment' => Rule::forEach(function ($value, string $attribute) use ($request, $expenseReport) {
+                $rules = ['file', 'max:5120', 'mimes:jpg,jpeg,png,pdf'];
+
+                if (! preg_match('/^lines\.(\d+)\.attachment$/', $attribute, $matches)) {
+                    return array_merge(['required'], $rules);
+                }
+
+                $lineId = $request->input("lines.{$matches[1]}.id");
+                $hasExistingAttachment = $expenseReport && $lineId
+                    && $expenseReport->lines->firstWhere('id', (int) $lineId)?->getFirstMedia('attachments');
+
+                return array_merge([$hasExistingAttachment ? 'nullable' : 'required'], $rules);
+            }),
+        ], [
+            'lines.*.expense_date.required' => 'Date is required.',
+            'lines.*.expense_category_id.required' => 'Category is required.',
+            'lines.*.project_id.required' => 'Project is required.',
+            'lines.*.total.required' => 'Total is required.',
+            'lines.*.total.gt' => 'Total is required.',
+            'lines.*.attachment.required' => 'Attachment is required.',
         ]);
     }
 

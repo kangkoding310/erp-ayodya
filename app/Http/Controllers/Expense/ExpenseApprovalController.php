@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers\Expense;
 
+use App\Enums\ExpenseStatus;
 use App\Http\Controllers\Controller;
+use App\Models\Employee;
 use App\Models\ExpenseReport;
 use App\Models\ExpenseReportLineApproval;
 use App\Services\ExpenseApprovalRoutingService;
@@ -18,40 +20,98 @@ class ExpenseApprovalController extends Controller
 {
     public function index(Request $request, ExpenseApprovalRoutingService $expenseApprovalRoutingService): Response
     {
+        $userId = Auth::id();
         $status = $request->string('status')->value();
-        $page = $request->integer('page', 1);
-        $perPage = 15;
 
+        // "status" here means the approver's own decision on lines (approved/rejected by
+        // me), not the report's overall status — an empty value keeps the default "needs
+        // my action now" listing (reportsForApprover), which has different semantics
+        // (current-turn only) than a decision-status search over past line approvals.
         if ($status) {
-            $reports = ExpenseReportLineApproval::query()
-                ->with('expenseReportLine.expenseReport.employee')
-                ->where('approver_id', Auth::id())
+            $rows = ExpenseReportLineApproval::query()
+                ->with('expenseReportLine.expenseReport.employee', 'expenseReportLine.expenseReport.lines.lineApprovals.approver')
+                ->where('approver_id', $userId)
                 ->where('status', $status)
                 ->get()
                 ->groupBy(fn (ExpenseReportLineApproval $a) => $a->expenseReportLine->expenseReport->id)
-                ->map(fn ($group) => [
-                    'expense_report' => $group->first()->expenseReportLine->expenseReport,
-                    'pending_line_count' => $group->count(),
-                ])
+                ->map(function ($group) use ($expenseApprovalRoutingService) {
+                    $expenseReport = $group->first()->expenseReportLine->expenseReport;
+
+                    return [
+                        'expense_report' => $expenseReport,
+                        'pending_line_count' => $group->count(),
+                        'current_approver_name' => $expenseReport->status === ExpenseStatus::InApproval
+                            ? $expenseApprovalRoutingService->currentApproverName($expenseReport)
+                            : null,
+                    ];
+                })
                 ->values();
         } else {
-            $userId = Auth::id();
-
-            $reports = $expenseApprovalRoutingService->reportsForApprover($userId)
-                ->with('employee', 'lines.lineApprovals.approvalMatrixLevel')
+            $rows = $expenseApprovalRoutingService->reportsForApprover($userId)
+                ->with('employee', 'lines.lineApprovals.approver', 'lines.lineApprovals.approvalMatrixLevel')
                 ->get()
                 ->map(fn (ExpenseReport $expenseReport) => [
                     'expense_report' => $expenseReport,
                     'pending_line_count' => $expenseReport->lines
                         ->filter(fn ($line) => optional($expenseApprovalRoutingService->currentLineApproval($line))->approver_id === $userId)
                         ->count(),
+                    'current_approver_name' => $expenseReport->status === ExpenseStatus::InApproval
+                        ? $expenseApprovalRoutingService->currentApproverName($expenseReport)
+                        : null,
                 ])
                 ->values();
         }
 
+        $totalRange = [
+            'min' => 0,
+            'max' => (int) ceil($rows->max(fn ($row) => (float) $row['expense_report']->total_expense) ?? 0),
+        ];
+
+        $search = $request->string('search')->value();
+        $employeeId = $request->string('employee_id')->value();
+        $minTotal = $request->filled('min_total') ? $request->float('min_total') : null;
+        $maxTotal = $request->filled('max_total') ? $request->float('max_total') : null;
+
+        $filtered = $rows
+            ->when($search, fn ($rows) => $rows->filter(function ($row) use ($search) {
+                $report = $row['expense_report'];
+
+                return str_contains(strtolower($report->code), strtolower($search))
+                    || str_contains(strtolower($report->employee?->name ?? ''), strtolower($search));
+            }))
+            ->when($employeeId, fn ($rows) => $rows->filter(
+                fn ($row) => (string) $row['expense_report']->employee_id === $employeeId
+            ))
+            ->when($minTotal !== null, fn ($rows) => $rows->filter(
+                fn ($row) => (float) $row['expense_report']->total_expense >= $minTotal
+            ))
+            ->when($maxTotal !== null, fn ($rows) => $rows->filter(
+                fn ($row) => (float) $row['expense_report']->total_expense <= $maxTotal
+            ));
+
+        $sortable = ['code', 'employee', 'total_expense', 'status'];
+        $sort = in_array($request->string('sort')->value(), $sortable, true) ? $request->string('sort')->value() : 'code';
+        $direction = $request->string('direction')->value() === 'desc' ? 'desc' : 'asc';
+
+        $sorted = match ($sort) {
+            'employee' => $filtered->sortBy(fn ($row) => strtolower($row['expense_report']->employee?->name ?? '')),
+            'total_expense' => $filtered->sortBy(fn ($row) => (float) $row['expense_report']->total_expense),
+            'status' => $filtered->sortBy(fn ($row) => $row['expense_report']->status->value),
+            default => $filtered->sortBy(fn ($row) => $row['expense_report']->code),
+        };
+
+        if ($direction === 'desc') {
+            $sorted = $sorted->reverse();
+        }
+
+        $sorted = $sorted->values();
+
+        $page = $request->integer('page', 1);
+        $perPage = 15;
+
         $paginated = new LengthAwarePaginator(
-            $reports->forPage($page, $perPage)->values(),
-            $reports->count(),
+            $sorted->forPage($page, $perPage)->values(),
+            $sorted->count(),
             $perPage,
             $page,
             ['path' => $request->url(), 'query' => $request->query()]
@@ -59,7 +119,13 @@ class ExpenseApprovalController extends Controller
 
         return Inertia::render('Expense/Approval/Index', [
             'reports' => $paginated,
-            'filters' => $request->only('status'),
+            'employees' => Employee::orderBy('name')->get(['id', 'name']),
+            'statuses' => [
+                ['id' => 'approved', 'text' => 'Approved by Me'],
+                ['id' => 'rejected', 'text' => 'Rejected by Me'],
+            ],
+            'totalRange' => $totalRange,
+            'filters' => $request->only('status', 'employee_id', 'search', 'min_total', 'max_total', 'sort', 'direction'),
         ]);
     }
 

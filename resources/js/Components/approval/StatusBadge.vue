@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 
-const props = defineProps<{ status: string }>();
+const props = defineProps<{ status: string; label?: string }>();
 
 const colorMap: Record<string, string> = {
     draft: 'bg-gray-100 text-gray-700',
@@ -21,7 +21,7 @@ const colorMap: Record<string, string> = {
 };
 
 const classes = computed(() => colorMap[props.status] ?? 'bg-gray-100 text-gray-700');
-const label = computed(() => props.status.replaceAll('_', ' ').replace(/\b\w/g, (c) => c.toUpperCase()));
+const label = computed(() => props.label ?? props.status.replaceAll('_', ' ').replace(/\b\w/g, (c) => c.toUpperCase()));
 </script>
 
 <template>

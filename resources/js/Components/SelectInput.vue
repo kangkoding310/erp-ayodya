@@ -41,10 +41,13 @@ let $select: any = null;
 const findOption = (id: string) => props.options.find((option) => String(option.id) === id) ?? null;
 
 const buildSettings = () => {
-    // Native <dialog> (used by Modal.vue) renders in the browser's top layer, above regular
-    // z-index stacking — select2's dropdown (appended to <body> by default) would otherwise
-    // render behind an open dialog. Re-parent it into the dialog instead.
-    const openDialog = document.querySelector('dialog[open]');
+    // Native <dialog> (used by Modal.vue and SplashScreen.vue) renders in the browser's top
+    // layer, above regular z-index stacking — select2's dropdown (appended to <body> by
+    // default) would otherwise render behind an open dialog. Re-parent it into the dialog
+    // instead. Must be scoped to an ancestor of this select specifically (not just "any open
+    // dialog in the document") — otherwise an unrelated open dialog elsewhere (e.g. the splash
+    // screen mid-navigation) can be picked instead, silently swallowing the dropdown.
+    const openDialog = selectRef.value?.closest('dialog[open]') ?? null;
 
     return {
         width: '100%',

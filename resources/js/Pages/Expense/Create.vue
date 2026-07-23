@@ -112,10 +112,11 @@ const submit = () => {
                                     </thead>
                                     <tbody v-auto-animate class="divide-y divide-gray-100">
                                         <tr v-for="(line, index) in form.lines" :key="index">
-                                            <td class="px-2 py-2">
+                                            <td class="px-2 py-2 align-top">
                                                 <TextInput v-model="line.expense_date" type="date" size="sm" class="w-full" />
+                                                <InputError :message="form.errors[`lines.${index}.expense_date`]" class="mt-1" />
                                             </td>
-                                            <td class="px-2 py-2">
+                                            <td class="px-2 py-2 align-top">
                                                 <SelectInput
                                                     v-model="line.expense_category_id"
                                                     :options="expenseCategoryOptions"
@@ -123,8 +124,9 @@ const submit = () => {
                                                     size="sm"
                                                     class="block w-full"
                                                 />
+                                                <InputError :message="form.errors[`lines.${index}.expense_category_id`]" class="mt-1" />
                                             </td>
-                                            <td class="px-2 py-2">
+                                            <td class="px-2 py-2 align-top">
                                                 <SelectInput
                                                     v-model="line.project_id"
                                                     :options="projectOptions"
@@ -132,17 +134,21 @@ const submit = () => {
                                                     size="sm"
                                                     class="block w-full"
                                                 />
+                                                <InputError :message="form.errors[`lines.${index}.project_id`]" class="mt-1" />
                                             </td>
-                                            <td class="px-2 py-2">
+                                            <td class="px-2 py-2 align-top">
                                                 <TextInput v-model="line.description" type="text" size="sm" class="w-full" />
+                                                <InputError :message="form.errors[`lines.${index}.description`]" class="mt-1" />
                                             </td>
-                                            <td class="px-2 py-2">
+                                            <td class="px-2 py-2 align-top">
                                                 <CurrencyInput v-model="line.total" size="sm" class="w-full" />
+                                                <InputError :message="form.errors[`lines.${index}.total`]" class="mt-1" />
                                             </td>
-                                            <td class="px-2 py-2" style="min-width: 220px">
+                                            <td class="px-2 py-2 align-top" style="min-width: 220px">
                                                 <FileUpload v-model="line.attachment" label="Drop or browse" size="sm" />
+                                                <InputError :message="form.errors[`lines.${index}.attachment`]" class="mt-1" />
                                             </td>
-                                            <td class="px-2 py-2 text-right">
+                                            <td class="px-2 py-2 text-right align-top">
                                                 <IconButton title="Remove" variant="delete" @click="remove(index)">
                                                     <Trash2 class="h-4 w-4" />
                                                 </IconButton>

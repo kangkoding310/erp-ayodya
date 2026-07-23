@@ -194,6 +194,7 @@ export interface ExpenseReportLineApproval {
     id: number;
     expense_report_line_id: number;
     approval_matrix_level_id: number;
+    cycle: number;
     approver_id: number;
     status: ApprovalStatus;
     remarks: string | null;

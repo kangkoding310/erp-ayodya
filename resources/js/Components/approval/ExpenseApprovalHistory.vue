@@ -58,23 +58,26 @@ const hasLines = (event: ExpenseHistoryEvent): event is Extract<ExpenseHistoryEv
 </script>
 
 <template>
-    <ol class="space-y-4">
-        <li v-for="(event, index) in events" :key="index" class="flex items-start gap-3">
+    <ol class="ol-approval-history relative">
+        <li v-for="(event, index) in events" :key="index" class="flex gap-3">
             <div class="flex flex-col items-center">
-                <span
-                    class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full"
-                    :class="{
-                        'bg-green-600 text-white': kinds[index] === 'done',
-                        'bg-red-600 text-white': kinds[index] === 'rejected',
-                        'bg-white ring-2 ring-blue-500': kinds[index] === 'current',
-                        'bg-white ring-2 ring-gray-200': kinds[index] === 'future',
-                    }"
-                >
-                    <Check v-if="kinds[index] === 'done'" class="h-3.5 w-3.5" />
-                    <X v-else-if="kinds[index] === 'rejected'" class="h-3.5 w-3.5" />
-                    <span v-else-if="kinds[index] === 'current'" class="h-2.5 w-2.5 rounded-full bg-blue-500" />
+                <span class="relative flex h-6 w-6 shrink-0 items-center justify-center">
+                    <span v-if="kinds[index] === 'current'" class="absolute inline-flex h-full w-full animate-ping rounded-full bg-blue-400 opacity-60" />
+                    <span
+                        class="relative flex h-6 w-6 shrink-0 items-center justify-center rounded-full"
+                        :class="{
+                            'bg-green-600 text-white': kinds[index] === 'done',
+                            'bg-red-600 text-white': kinds[index] === 'rejected',
+                            'bg-white ring-2 ring-blue-500': kinds[index] === 'current',
+                            'bg-white ring-2 ring-gray-200': kinds[index] === 'future',
+                        }"
+                    >
+                        <Check v-if="kinds[index] === 'done'" class="h-3.5 w-3.5" />
+                        <X v-else-if="kinds[index] === 'rejected'" class="h-3.5 w-3.5" />
+                        <span v-else-if="kinds[index] === 'current'" class="h-2.5 w-2.5 rounded-full bg-blue-500" />
+                    </span>
                 </span>
-                <span v-if="index < events.length - 1" class="mt-1 h-full w-px flex-1 bg-gray-200" />
+                <span v-if="index < events.length - 1" class="w-px flex-1 bg-gray-200" />
             </div>
             <div class="pb-4">
                 <p class="text-sm font-medium" :class="kinds[index] === 'future' ? 'text-gray-400' : 'text-gray-800'">
@@ -94,7 +97,7 @@ const hasLines = (event: ExpenseHistoryEvent): event is Extract<ExpenseHistoryEv
                         {{ expanded.has(index) ? 'Hide' : 'View' }} {{ event.lines.length }} item{{ event.lines.length > 1 ? 's' : '' }}
                     </button>
 
-                    <div v-if="event.lines.length === 1 || expanded.has(index)" class="mt-2 space-y-1.5">
+                    <div v-if="event.lines.length === 1 || expanded.has(index)" class="mt-2 space-y-1.5 overflow-auto max-h-[100px]">
                         <div v-for="line in event.lines" :key="line.id" class="rounded-md bg-gray-50 px-2.5 py-1.5 text-xs">
                             <p class="font-medium text-gray-700">{{ line.description ?? `Item #${line.id}` }}</p>
                             <p v-if="line.remarks" class="mt-0.5 text-gray-500">"{{ line.remarks }}"</p>

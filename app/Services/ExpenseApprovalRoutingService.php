@@ -32,6 +32,7 @@ class ExpenseApprovalRoutingService
                     ExpenseReportLineApproval::create([
                         'expense_report_line_id' => $line->id,
                         'approval_matrix_level_id' => $level->id,
+                        'cycle' => 1,
                         'approver_id' => $level->approver_id,
                         'status' => ApprovalStatus::Pending,
                     ]);
@@ -229,12 +230,16 @@ class ExpenseApprovalRoutingService
 
         DB::transaction(function () use ($lines, $matrix) {
             foreach ($lines as $line) {
-                $line->lineApprovals()->delete();
+                // Start a fresh cycle instead of deleting prior rows, so the rejection
+                // (and its remark) that triggered this resubmission stays visible in the
+                // approval history rather than being wiped from under it.
+                $nextCycle = ($line->lineApprovals()->max('cycle') ?? 0) + 1;
 
                 foreach ($matrix->levels as $level) {
                     ExpenseReportLineApproval::create([
                         'expense_report_line_id' => $line->id,
                         'approval_matrix_level_id' => $level->id,
+                        'cycle' => $nextCycle,
                         'approver_id' => $level->approver_id,
                         'status' => ApprovalStatus::Pending,
                     ]);

@@ -14,6 +14,7 @@ class ExpenseReportLineApproval extends Model
     protected $fillable = [
         'expense_report_line_id',
         'approval_matrix_level_id',
+        'cycle',
         'approver_id',
         'status',
         'remarks',
