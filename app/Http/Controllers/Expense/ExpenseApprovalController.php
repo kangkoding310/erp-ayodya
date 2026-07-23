@@ -2,10 +2,11 @@
 
 namespace App\Http\Controllers\Expense;
 
-use App\Enums\ApprovalStatus;
 use App\Http\Controllers\Controller;
-use App\Models\ExpenseReportApproval;
+use App\Models\ExpenseReport;
+use App\Models\ExpenseReportLineApproval;
 use App\Services\ExpenseApprovalRoutingService;
+use App\Support\ExpenseApprovalHistoryBuilder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -22,82 +23,120 @@ class ExpenseApprovalController extends Controller
         $perPage = 15;
 
         if ($status) {
-            $approvals = ExpenseReportApproval::query()
-                ->with('expenseReport.employee')
+            $reports = ExpenseReportLineApproval::query()
+                ->with('expenseReportLine.expenseReport.employee')
                 ->where('approver_id', Auth::id())
                 ->where('status', $status)
-                ->latest()
-                ->paginate($perPage)
-                ->withQueryString();
-        } else {
-            // Pending approvals only appear once it's actually this approver's
-            // turn in the level sequence, so filtering happens in PHP rather
-            // than the query.
-            $myTurn = ExpenseReportApproval::query()
-                ->with('expenseReport.employee', 'expenseReport.approvals.approvalMatrixLevel')
-                ->where('approver_id', Auth::id())
-                ->where('status', ApprovalStatus::Pending)
-                ->latest()
                 ->get()
-                ->filter(fn (ExpenseReportApproval $approval) => $expenseApprovalRoutingService->isCurrentTurn($approval))
+                ->groupBy(fn (ExpenseReportLineApproval $a) => $a->expenseReportLine->expenseReport->id)
+                ->map(fn ($group) => [
+                    'expense_report' => $group->first()->expenseReportLine->expenseReport,
+                    'pending_line_count' => $group->count(),
+                ])
                 ->values();
+        } else {
+            $userId = Auth::id();
 
-            $approvals = new LengthAwarePaginator(
-                $myTurn->forPage($page, $perPage)->values(),
-                $myTurn->count(),
-                $perPage,
-                $page,
-                ['path' => $request->url(), 'query' => $request->query()]
-            );
+            $reports = $expenseApprovalRoutingService->reportsForApprover($userId)
+                ->with('employee', 'lines.lineApprovals.approvalMatrixLevel')
+                ->get()
+                ->map(fn (ExpenseReport $expenseReport) => [
+                    'expense_report' => $expenseReport,
+                    'pending_line_count' => $expenseReport->lines
+                        ->filter(fn ($line) => optional($expenseApprovalRoutingService->currentLineApproval($line))->approver_id === $userId)
+                        ->count(),
+                ])
+                ->values();
         }
 
+        $paginated = new LengthAwarePaginator(
+            $reports->forPage($page, $perPage)->values(),
+            $reports->count(),
+            $perPage,
+            $page,
+            ['path' => $request->url(), 'query' => $request->query()]
+        );
+
         return Inertia::render('Expense/Approval/Index', [
-            'approvals' => $approvals,
+            'reports' => $paginated,
             'filters' => $request->only('status'),
         ]);
     }
 
-    public function show(ExpenseReportApproval $approval, ExpenseApprovalRoutingService $expenseApprovalRoutingService): Response
+    public function show(ExpenseReport $expenseReport, ExpenseApprovalRoutingService $expenseApprovalRoutingService, ExpenseApprovalHistoryBuilder $historyBuilder): Response
     {
-        abort_unless($approval->approver_id === Auth::id(), 403);
-        abort_unless(
-            $approval->status !== ApprovalStatus::Pending || $expenseApprovalRoutingService->isCurrentTurn($approval),
-            409
+        $expenseReport->load(
+            'employee.user',
+            'lines.expenseCategory',
+            'lines.project',
+            'lines.media',
+            'lines.lineApprovals.approver',
+            'lines.lineApprovals.approvalMatrixLevel'
         );
 
+        $isApproverOnReport = $expenseReport->lines
+            ->flatMap(fn ($line) => $line->lineApprovals)
+            ->contains(fn (ExpenseReportLineApproval $a) => $a->approver_id === Auth::id());
+
+        abort_unless($isApproverOnReport, 403);
+
+        $myTurnLineIds = $expenseReport->lines
+            ->filter(function ($line) use ($expenseApprovalRoutingService) {
+                $current = $expenseApprovalRoutingService->currentLineApproval($line);
+
+                return $current && $current->approver_id === Auth::id();
+            })
+            ->pluck('id')
+            ->values();
+
         return Inertia::render('Expense/Approval/Show', [
-            'approval' => $approval->load(
-                'expenseReport.employee',
-                'expenseReport.lines.expenseCategory',
-                'expenseReport.lines.project',
-                'expenseReport.lines.media',
-                'expenseReport.approvals.approver',
-                'expenseReport.approvals.approvalMatrixLevel'
-            ),
+            'expenseReport' => $expenseReport,
+            'myTurnLineIds' => $myTurnLineIds,
+            'events' => $historyBuilder->build($expenseReport),
         ]);
     }
 
-    public function approve(Request $request, ExpenseReportApproval $approval, ExpenseApprovalRoutingService $expenseApprovalRoutingService): RedirectResponse
+    public function approveLines(Request $request, ExpenseReport $expenseReport, ExpenseApprovalRoutingService $expenseApprovalRoutingService): RedirectResponse
     {
-        abort_unless($approval->approver_id === Auth::id(), 403);
-        abort_unless($expenseApprovalRoutingService->isCurrentTurn($approval), 409);
+        $validated = $request->validate([
+            'lines' => ['required', 'array', 'min:1'],
+            'lines.*.line_id' => ['required', 'integer', 'exists:expense_report_lines,id'],
+            'lines.*.remarks' => ['nullable', 'string'],
+        ]);
 
-        $validated = $request->validate(['remarks' => ['nullable', 'string']]);
+        $lineIds = array_column($validated['lines'], 'line_id');
+        $remarksByLineId = array_column($validated['lines'], 'remarks', 'line_id');
 
-        $expenseApprovalRoutingService->approve($approval, $validated['remarks'] ?? null);
+        $expenseApprovalRoutingService->bulkApprove($expenseReport, $lineIds, $remarksByLineId, Auth::id());
 
-        return redirect()->route('expense.approvals.index')->with('success', 'Expense report approved.');
+        return back()->with('success', 'Selected items approved.');
     }
 
-    public function reject(Request $request, ExpenseReportApproval $approval, ExpenseApprovalRoutingService $expenseApprovalRoutingService): RedirectResponse
+    public function rejectLines(Request $request, ExpenseReport $expenseReport, ExpenseApprovalRoutingService $expenseApprovalRoutingService): RedirectResponse
     {
-        abort_unless($approval->approver_id === Auth::id(), 403);
-        abort_unless($expenseApprovalRoutingService->isCurrentTurn($approval), 409);
+        $validated = $request->validate([
+            'lines' => ['required', 'array', 'min:1'],
+            'lines.*.line_id' => ['required', 'integer', 'exists:expense_report_lines,id'],
+            'lines.*.remarks' => ['nullable', 'string'],
+            'bulk_remarks' => ['nullable', 'string'],
+        ]);
 
-        $validated = $request->validate(['remarks' => ['required', 'string']]);
+        $lineIds = array_column($validated['lines'], 'line_id');
+        $remarksByLineId = array_column($validated['lines'], 'remarks', 'line_id');
+        $bulkRemarks = $validated['bulk_remarks'] ?? null;
 
-        $expenseApprovalRoutingService->reject($approval, $validated['remarks']);
+        $missingRemarks = collect($validated['lines'])
+            ->filter(fn ($line, $index) => empty($line['remarks']) && empty($bulkRemarks))
+            ->keys();
 
-        return redirect()->route('expense.approvals.index')->with('success', 'Expense report rejected.');
+        if ($missingRemarks->isNotEmpty()) {
+            $errors = $missingRemarks->mapWithKeys(fn ($index) => ["lines.{$index}.remarks" => 'A remark is required for each rejected item.']);
+
+            return back()->withErrors($errors->all())->withInput();
+        }
+
+        $expenseApprovalRoutingService->bulkReject($expenseReport, $lineIds, $remarksByLineId, $bulkRemarks, Auth::id());
+
+        return redirect()->route('expense.approvals.index')->with('success', 'Selected items rejected.');
     }
 }

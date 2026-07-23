@@ -28,6 +28,7 @@ class ProductCategoryController extends Controller
         $validated = $request->validate([
             'code' => ['required', 'string', 'max:50', 'unique:product_categories,code'],
             'name' => ['required', 'string', 'max:255'],
+            'coa' => ['nullable', 'string', 'max:255'],
         ]);
 
         ProductCategory::create($validated);
@@ -40,6 +41,7 @@ class ProductCategoryController extends Controller
         $validated = $request->validate([
             'code' => ['required', 'string', 'max:50', 'unique:product_categories,code,'.$product_category->id],
             'name' => ['required', 'string', 'max:255'],
+            'coa' => ['nullable', 'string', 'max:255'],
         ]);
 
         $product_category->update($validated);

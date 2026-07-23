@@ -25,6 +25,7 @@ const editing = ref<ProductCategory | null>(null);
 const form = useForm({
     code: '',
     name: '',
+    coa: '',
 });
 
 const openCreate = () => {
@@ -38,6 +39,7 @@ const openEdit = (category: ProductCategory) => {
     editing.value = category;
     form.code = category.code;
     form.name = category.name;
+    form.coa = category.coa ?? '';
     form.clearErrors();
     showModal.value = true;
 };
@@ -81,6 +83,7 @@ const destroy = (category: ProductCategory) => {
                                 <tr>
                                     <th class="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">Code</th>
                                     <th class="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">Name</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">Chart of Accounts</th>
                                     <th class="px-4 py-3" />
                                 </tr>
                             </thead>
@@ -88,6 +91,7 @@ const destroy = (category: ProductCategory) => {
                                 <tr v-for="category in productCategories.data" :key="category.id">
                                     <td class="px-4 py-3 text-sm text-gray-700">{{ category.code }}</td>
                                     <td class="px-4 py-3 text-sm text-gray-700">{{ category.name }}</td>
+                                    <td class="px-4 py-3 text-sm text-gray-700">{{ category.coa ?? '-' }}</td>
                                     <td class="px-4 py-3 text-right text-sm">
                                         <IconButton title="Edit" class="mr-2" @click="openEdit(category)">
                                             <Pencil class="h-4 w-4" />
@@ -98,7 +102,7 @@ const destroy = (category: ProductCategory) => {
                                     </td>
                                 </tr>
                                 <tr v-if="productCategories.data.length === 0">
-                                    <td colspan="3" class="px-4 py-6 text-center text-sm text-gray-400">No categories yet.</td>
+                                    <td colspan="4" class="px-4 py-6 text-center text-sm text-gray-400">No categories yet.</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -124,6 +128,12 @@ const destroy = (category: ProductCategory) => {
                     <InputLabel for="name" value="Name" />
                     <TextInput id="name" v-model="form.name" class="mt-1 block w-full" />
                     <InputError :message="form.errors.name" class="mt-2" />
+                </div>
+
+                <div class="mt-4">
+                    <InputLabel for="coa" value="Chart of Accounts" />
+                    <TextInput id="coa" v-model="form.coa" class="mt-1 block w-full" />
+                    <InputError :message="form.errors.coa" class="mt-2" />
                 </div>
 
                 <div class="mt-6 flex justify-end gap-3">

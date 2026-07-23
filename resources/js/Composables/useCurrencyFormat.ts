@@ -2,7 +2,7 @@ export function useCurrencyFormat(currency = 'IDR') {
     const formatter = new Intl.NumberFormat('id-ID', {
         style: 'currency',
         currency,
-        minimumFractionDigits: 2,
+        minimumFractionDigits: 0,
     });
 
     const format = (value: string | number): string => formatter.format(Number(value));

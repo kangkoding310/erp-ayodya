@@ -187,7 +187,12 @@ watchDebounced(totalRangeModel, () => applyFilters(), { debounce: 400, deep: tru
                             <td class="px-4 py-3 text-sm font-medium text-gray-800">{{ report.code }}</td>
                             <td class="px-4 py-3 text-sm text-gray-700">{{ report.employee?.name ?? '-' }}</td>
                             <td class="px-4 py-3 text-sm text-gray-700">{{ format(report.total_expense) }}</td>
-                            <td class="px-4 py-3"><StatusBadge :status="report.status" /></td>
+                            <td class="px-4 py-3">
+                                <StatusBadge :status="report.status" />
+                                <span v-if="report.status === 'in_approval' && report.current_approver_name" class="ml-1.5 text-xs text-gray-500">
+                                    by {{ report.current_approver_name }}
+                                </span>
+                            </td>
                             <td class="px-4 py-3 text-right text-sm">
                                 <Link :href="route('expense.reports.show', report.id)" class="text-blue-600 hover:underline">View</Link>
                             </td>

@@ -7,23 +7,32 @@ import SelectInput from '@/Components/SelectInput.vue';
 import TextInput from '@/Components/TextInput.vue';
 import Card from '@/Components/ui/Card.vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import type { Product, ProductCategory } from '@/types/models';
+import type { AccountType, Currency, Product, ProductCategory } from '@/types/models';
 import { Head, Link, useForm } from '@inertiajs/vue3';
 import { computed } from 'vue';
 
 const props = defineProps<{
     product: Product;
     categories: ProductCategory[];
+    accountType: AccountType[];
+    currency: Currency[];
 }>();
 
 const categoryOptions = computed(() => props.categories.map((category) => ({ id: category.id, text: category.name })));
+const accountTypeOptions = computed(() => props.accountType.map((account_type) => ({ id: account_type.id, text: account_type.name })));
+const currencyOptions = computed(() => props.currency.map((currency) => ({ id: currency.id, text: currency.name })));
 
 const form = useForm({
     name: props.product.name,
     price: props.product.price,
+    user_price: props.product.user_price ?? '',
+    partner_price: props.product.partner_price ?? '',
     tax_percentage: props.product.tax_percentage,
     type: props.product.type ?? '',
     product_category_id: props.product.product_category_id as number | '',
+    account_type: props.product.account_type ?? '',
+    coa: props.product.coa ?? '',
+    currency: props.product.currency ?? '',
 });
 
 const submit = () => {
@@ -61,17 +70,57 @@ const submit = () => {
                             <InputError :message="form.errors.product_category_id" class="mt-2" />
                         </div>
 
-                        <div class="grid grid-cols-2 gap-4">
-                            <div>
-                                <InputLabel for="price" value="Price" />
-                                <TextInput id="price" v-model="form.price" type="number" step="0.01" class="mt-1 block w-full" />
-                                <InputError :message="form.errors.price" class="mt-2" />
-                            </div>
-                            <div>
-                                <InputLabel for="tax_percentage" value="Tax %" />
-                                <TextInput id="tax_percentage" v-model="form.tax_percentage" type="number" step="0.01" class="mt-1 block w-full" />
-                                <InputError :message="form.errors.tax_percentage" class="mt-2" />
-                            </div>
+                        <div>
+                            <InputLabel for="account_type" value="Account Type" />
+                            <SelectInput
+                                id="account_type"
+                                v-model="form.account_type"
+                                :options="accountTypeOptions"
+                                placeholder="Select Account Type"
+                                class="mt-1 block w-full"
+                            />
+                            <InputError :message="form.errors.account_type" class="mt-2" />
+                        </div>
+
+                        <div>
+                            <InputLabel for="coa" value="Chart of Accounts" />
+                            <TextInput id="coa" v-model="form.coa" type="number" placeholder="1101" class="mt-1 block w-full" />
+                            <InputError :message="form.errors.coa" class="mt-2" />
+                        </div>
+
+                        <div>
+                            <InputLabel for="currency" value="Currency" />
+                            <SelectInput
+                                id="currency"
+                                v-model="form.currency"
+                                :options="currencyOptions"
+                                placeholder="Select Currency"
+                                class="mt-1 block w-full"
+                            />
+                            <InputError :message="form.errors.currency" class="mt-2" />
+                        </div>
+
+                        <div>
+                            <InputLabel for="price" value="Price" />
+                            <TextInput id="price" v-model="form.price" type="number" step="0.01" class="mt-1 block w-full" />
+                            <InputError :message="form.errors.price" class="mt-2" />
+                        </div>
+
+                        <div>
+                            <InputLabel for="user_price" value="User Price" />
+                            <TextInput id="user_price" v-model="form.user_price" type="number" step="0.01" placeholder="0.00" class="mt-1 block w-full" />
+                            <InputError :message="form.errors.user_price" class="mt-2" />
+                        </div>
+                        <div>
+                            <InputLabel for="partner_price" value="Partner Price" />
+                            <TextInput id="partner_price" v-model="form.partner_price" type="number" step="0.01" placeholder="0.00" class="mt-1 block w-full" />
+                            <InputError :message="form.errors.partner_price" class="mt-2" />
+                        </div>
+
+                        <div>
+                            <InputLabel for="tax_percentage" value="Tax %" />
+                            <TextInput id="tax_percentage" v-model="form.tax_percentage" type="number" step="0.01" class="mt-1 block w-full" />
+                            <InputError :message="form.errors.tax_percentage" class="mt-2" />
                         </div>
 
                         <div>

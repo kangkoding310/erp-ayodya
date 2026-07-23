@@ -6,6 +6,7 @@ import SecondaryButton from '@/Components/SecondaryButton.vue';
 import SelectInput from '@/Components/SelectInput.vue';
 import TextInput from '@/Components/TextInput.vue';
 import Card from '@/Components/ui/Card.vue';
+import CurrencyInput from '@/Components/ui/CurrencyInput.vue';
 import FileUpload from '@/Components/ui/FileUpload.vue';
 import IconButton from '@/Components/ui/IconButton.vue';
 import { useCurrencyFormat } from '@/Composables/useCurrencyFormat';
@@ -76,7 +77,7 @@ const submit = () => {
                     <form class="space-y-6" @submit.prevent="submit">
                         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
                             <div>
-                                <InputLabel for="employee_id" value="Employee" />
+                                <InputLabel for="employee_id" value="Employee" required />
                                 <SelectInput
                                     id="employee_id"
                                     v-model="form.employee_id"
@@ -95,66 +96,58 @@ const submit = () => {
                         </div>
 
                         <div>
-                            <InputLabel value="Expense Lines" class="mb-2" />
-                            <div class="overflow-x-auto">
+                            <InputLabel value="Expense Lines" class="mb-2" required />
+                            <div class="max-h-[28rem] overflow-y-auto overflow-x-auto rounded-md border border-gray-100">
                                 <table class="min-w-full divide-y divide-gray-200">
-                                    <thead>
+                                    <thead class="sticky top-0 z-10 bg-gray-50">
                                         <tr>
-                                            <th class="px-2 py-2 text-left text-xs font-medium uppercase text-gray-500">Date</th>
-                                            <th class="px-2 py-2 text-left text-xs font-medium uppercase text-gray-500 w-44">Category</th>
-                                            <th class="px-2 py-2 text-left text-xs font-medium uppercase text-gray-500 w-52">Project</th>
+                                            <th class="px-2 py-2 text-left text-xs font-medium uppercase text-gray-500">Date<span class="text-red-500">&nbsp;*</span></th>
+                                            <th class="px-2 py-2 text-left text-xs font-medium uppercase text-gray-500 w-44">Category<span class="text-red-500">&nbsp;*</span></th>
+                                            <th class="px-2 py-2 text-left text-xs font-medium uppercase text-gray-500 w-52">Project<span class="text-red-500">&nbsp;*</span></th>
                                             <th class="px-2 py-2 text-left text-xs font-medium uppercase text-gray-500">Description</th>
-                                            <th class="w-36 px-2 py-2 text-left text-xs font-medium uppercase text-gray-500">Total</th>
-                                            <!-- <th class="px-2 py-2 text-left text-xs font-medium uppercase text-gray-500">Attachment</th> -->
+                                            <th class="w-36 px-2 py-2 text-left text-xs font-medium uppercase text-gray-500">Total<span class="text-red-500">&nbsp;*</span></th>
+                                            <th class="px-2 py-2 text-left text-xs font-medium uppercase text-gray-500 w-52">Attachment<span class="text-red-500">&nbsp;*</span></th>
                                             <th class="w-10" />
                                         </tr>
                                     </thead>
                                     <tbody v-auto-animate class="divide-y divide-gray-100">
-                                        <template v-for="(line, index) in form.lines" :key="index">
-                                            <tr>
-                                                <td class="px-2 py-2">
-                                                    <TextInput v-model="line.expense_date" type="date" size="sm" class="w-full" />
-                                                </td>
-                                                <td class="px-2 py-2">
-                                                    <SelectInput
-                                                        v-model="line.expense_category_id"
-                                                        :options="expenseCategoryOptions"
-                                                        placeholder="Select category"
-                                                        size="sm"
-                                                        class="block w-full"
-                                                    />
-                                                </td>
-                                                <td class="px-2 py-2">
-                                                    <SelectInput
-                                                        v-model="line.project_id"
-                                                        :options="projectOptions"
-                                                        placeholder="Select project"
-                                                        size="sm"
-                                                        allow-clear
-                                                        class="block w-full"
-                                                    />
-                                                </td>
-                                                <td class="px-2 py-2">
-                                                    <TextInput v-model="line.description" type="text" size="sm" class="w-full" />
-                                                </td>
-                                                <td class="px-2 py-2">
-                                                    <TextInput v-model.number="line.total" type="number" min="0" step="0.01" size="sm" class="w-full" />
-                                                </td>
-                                                <!-- <td class="px-2 py-2" style="min-width: 220px">
-                                                    <FileUpload v-model="line.attachment" />
-                                                </td> -->
-                                                <td class="px-2 py-2 text-right">
-                                                    <IconButton title="Remove" variant="delete" @click="remove(index)">
-                                                        <Trash2 class="h-4 w-4" />
-                                                    </IconButton>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td colspan="5">
-                                                    <FileUpload v-model="line.attachment" label="Drop Attachment or browse" size="sm" />
-                                                </td>
-                                            </tr>
-                                        </template>
+                                        <tr v-for="(line, index) in form.lines" :key="index">
+                                            <td class="px-2 py-2">
+                                                <TextInput v-model="line.expense_date" type="date" size="sm" class="w-full" />
+                                            </td>
+                                            <td class="px-2 py-2">
+                                                <SelectInput
+                                                    v-model="line.expense_category_id"
+                                                    :options="expenseCategoryOptions"
+                                                    placeholder="Select category"
+                                                    size="sm"
+                                                    class="block w-full"
+                                                />
+                                            </td>
+                                            <td class="px-2 py-2">
+                                                <SelectInput
+                                                    v-model="line.project_id"
+                                                    :options="projectOptions"
+                                                    placeholder="Select project"
+                                                    size="sm"
+                                                    class="block w-full"
+                                                />
+                                            </td>
+                                            <td class="px-2 py-2">
+                                                <TextInput v-model="line.description" type="text" size="sm" class="w-full" />
+                                            </td>
+                                            <td class="px-2 py-2">
+                                                <CurrencyInput v-model="line.total" size="sm" class="w-full" />
+                                            </td>
+                                            <td class="px-2 py-2" style="min-width: 220px">
+                                                <FileUpload v-model="line.attachment" label="Drop or browse" size="sm" />
+                                            </td>
+                                            <td class="px-2 py-2 text-right">
+                                                <IconButton title="Remove" variant="delete" @click="remove(index)">
+                                                    <Trash2 class="h-4 w-4" />
+                                                </IconButton>
+                                            </td>
+                                        </tr>
                                     </tbody>
                                 </table>
                             </div>

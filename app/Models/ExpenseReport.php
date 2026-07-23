@@ -34,9 +34,4 @@ class ExpenseReport extends Model implements HasMedia
     {
         return $this->hasMany(ExpenseReportLine::class);
     }
-
-    public function approvals(): HasMany
-    {
-        return $this->hasMany(ExpenseReportApproval::class);
-    }
 }

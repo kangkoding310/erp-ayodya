@@ -5,6 +5,7 @@ export interface NavChild {
     label: string;
     href: string;
     active: boolean;
+    icon?: string;
 }
 
 export interface NavModule {
@@ -81,8 +82,8 @@ export function useModuleNav() {
             href: route('expense.reports.index'),
             active: isRouteActive('expense'),
             children: [
-                { label: 'Reports', href: route('expense.reports.index'), active: isRouteActive('expense.reports') },
-                { label: 'Approvals', href: route('expense.approvals.index'), active: isRouteActive('expense.approvals') },
+                { label: 'Reports', href: route('expense.reports.index'), active: isRouteActive('expense.reports'), icon: icons.document },
+                { label: 'Approvals', href: route('expense.approvals.index'), active: isRouteActive('expense.approvals'), icon: icons.check },
             ],
         },
         {

@@ -2,15 +2,18 @@
 
 namespace App\Http\Controllers\Expense;
 
+use App\Enums\ApprovalStatus;
 use App\Enums\ExpenseStatus;
 use App\Http\Controllers\Controller;
 use App\Models\ApprovalMatrixLevel;
 use App\Models\Employee;
 use App\Models\ExpenseReport;
+use App\Models\ExpenseReportLineApproval;
 use App\Models\ProductCategory;
 use App\Models\Project;
 use App\Services\ExpenseApprovalRoutingService;
 use App\Services\ExpenseReportService;
+use App\Support\ExpenseApprovalHistoryBuilder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -20,26 +23,18 @@ use Inertia\Response;
 
 class ExpenseReportController extends Controller
 {
-    public function index(Request $request): Response
+    public function index(Request $request, ExpenseApprovalRoutingService $expenseApprovalRoutingService): Response
     {
         $userId = Auth::id();
-
-        // Approvers configured on the "Expense" approval matrix can track every
-        // expense report, not just their own; everyone else only sees their own.
-        $isApprover = ApprovalMatrixLevel::query()
-            ->where('approver_id', $userId)
-            ->whereHas('approvalMatrix.purchaseType', fn ($q) => $q->where('name', 'Expense'))
-            ->exists();
 
         $sortable = ['code', 'employee', 'total_expense', 'status', 'created_at'];
         $sort = in_array($request->string('sort')->value(), $sortable, true) ? $request->string('sort')->value() : 'created_at';
         $direction = $request->string('direction')->value() === 'asc' ? 'asc' : 'desc';
 
+        // Reports are private to the employee who created them; approvers track
+        // their involvement via the separate "expense.approvals" pages instead.
         $baseQuery = ExpenseReport::query()
-            ->when(
-                ! $isApprover,
-                fn ($q) => $q->whereHas('employee', fn ($q) => $q->where('user_id', $userId))
-            );
+            ->whereHas('employee', fn ($q) => $q->where('user_id', $userId));
 
         $totalRange = [
             'min' => 0,
@@ -47,7 +42,7 @@ class ExpenseReportController extends Controller
         ];
 
         $expenseReports = (clone $baseQuery)
-            ->with('employee:id,name')
+            ->with('employee:id,name', 'lines')
             ->when($request->string('status')->value(), fn ($q, $status) => $q->where('status', $status))
             ->when($request->string('employee_id')->value(), fn ($q, $employeeId) => $q->where('employee_id', $employeeId))
             ->when($request->string('search')->value(), fn ($q, $search) => $q->where(function ($q) use ($search) {
@@ -65,6 +60,12 @@ class ExpenseReportController extends Controller
             )
             ->paginate(15)
             ->withQueryString();
+
+        $expenseReports->getCollection()->each(function (ExpenseReport $report) use ($expenseApprovalRoutingService) {
+            $report->current_approver_name = $report->status === ExpenseStatus::InApproval
+                ? $expenseApprovalRoutingService->currentApproverName($report)
+                : null;
+        });
 
         return Inertia::render('Expense/Index', [
             'expenseReports' => $expenseReports,
@@ -102,17 +103,23 @@ class ExpenseReportController extends Controller
         return redirect()->route('expense.reports.show', $expenseReport)->with('success', 'Expense report created.');
     }
 
-    public function show(ExpenseReport $expenseReport): Response
+    public function show(ExpenseReport $expenseReport, ExpenseApprovalHistoryBuilder $historyBuilder): Response
     {
+        $expenseReport->load(
+            'employee.division',
+            'employee.user',
+            'lines.expenseCategory',
+            'lines.project',
+            'lines.media',
+            'lines.lineApprovals.approver',
+            'lines.lineApprovals.approvalMatrixLevel'
+        );
+
         return Inertia::render('Expense/Show', [
-            'expenseReport' => $expenseReport->load(
-                'employee.division',
-                'lines.expenseCategory',
-                'lines.project',
-                'lines.media',
-                'approvals.approver',
-                'approvals.approvalMatrixLevel'
-            ),
+            'expenseReport' => $expenseReport,
+            'events' => $historyBuilder->build($expenseReport),
+            'expenseCategories' => ProductCategory::orderBy('name')->get(['id', 'name']),
+            'projects' => Project::orderBy('name')->get(['id', 'name']),
         ]);
     }
 
@@ -164,25 +171,80 @@ class ExpenseReportController extends Controller
     {
         abort_unless($expenseReport->employee->user_id === Auth::id(), 403);
         abort_unless(
-            \in_array($expenseReport->status, [ExpenseStatus::Draft, ExpenseStatus::Submitted, ExpenseStatus::InApproval], true),
+            \in_array($expenseReport->status, [
+                ExpenseStatus::Draft,
+                ExpenseStatus::Submitted,
+                ExpenseStatus::InApproval,
+                ExpenseStatus::NeedsRevision,
+            ], true),
             409
         );
 
         DB::transaction(function () use ($expenseReport) {
-            $expenseReport->approvals()->where('status', 'pending')->delete();
+            $lineIds = $expenseReport->lines()->pluck('id');
+
+            ExpenseReportLineApproval::whereIn('expense_report_line_id', $lineIds)
+                ->whereIn('status', [ApprovalStatus::Pending, ApprovalStatus::Skipped])
+                ->delete();
+
+            $expenseReport->lines()->update(['status' => ApprovalStatus::Cancelled]);
+
             $expenseReport->update(['status' => ExpenseStatus::Cancelled]);
         });
 
         return back()->with('success', 'Expense report cancelled.');
     }
 
+    public function resubmit(Request $request, ExpenseReport $expenseReport, ExpenseApprovalRoutingService $expenseApprovalRoutingService): RedirectResponse
+    {
+        abort_unless($expenseReport->employee->user_id === Auth::id(), 403);
+        abort_unless($expenseReport->status === ExpenseStatus::NeedsRevision, 409);
+
+        $validated = $request->validate([
+            'lines' => ['required', 'array', 'min:1'],
+            'lines.*.id' => ['required', 'integer', 'exists:expense_report_lines,id'],
+            'lines.*.expense_date' => ['required', 'date'],
+            'lines.*.expense_category_id' => ['required', 'exists:product_categories,id'],
+            'lines.*.project_id' => ['nullable', 'exists:projects,id'],
+            'lines.*.description' => ['nullable', 'string'],
+            'lines.*.total' => ['required', 'numeric', 'min:0'],
+            'lines.*.attachment' => ['nullable', 'file', 'max:5120', 'mimes:jpg,jpeg,png,pdf'],
+        ]);
+
+        $lineIds = collect($validated['lines'])->pluck('id')->all();
+
+        DB::transaction(function () use ($expenseReport, $validated) {
+            foreach ($validated['lines'] as $lineData) {
+                $line = $expenseReport->lines()
+                    ->where('id', $lineData['id'])
+                    ->where('status', ApprovalStatus::Rejected)
+                    ->firstOrFail();
+
+                $attachment = $lineData['attachment'] ?? null;
+                unset($lineData['id'], $lineData['attachment']);
+
+                $line->update($lineData);
+
+                if ($attachment) {
+                    $line->addMedia($attachment)->toMediaCollection('attachments');
+                }
+            }
+        });
+
+        $expenseApprovalRoutingService->resubmitAfterRevision($expenseReport, $lineIds);
+
+        return redirect()->route('expense.reports.show', $expenseReport)->with('success', 'Expense report resubmitted for approval.');
+    }
+
     public function sendToAccounting(ExpenseReport $expenseReport, ExpenseReportService $expenseReportService): RedirectResponse
     {
-        $levelOneApproval = $expenseReport->approvals()
-            ->whereHas('approvalMatrixLevel', fn ($q) => $q->where('level', 1))
-            ->first();
+        $isLevelOneApprover = ApprovalMatrixLevel::query()
+            ->where('level', 1)
+            ->whereHas('approvalMatrix.purchaseType', fn ($q) => $q->where('name', 'Expense'))
+            ->where('approver_id', Auth::id())
+            ->exists();
 
-        abort_unless($levelOneApproval && $levelOneApproval->approver_id === Auth::id(), 403);
+        abort_unless($isLevelOneApprover, 403);
 
         $expenseReportService->sendToAccounting($expenseReport);
 
@@ -211,10 +273,10 @@ class ExpenseReportController extends Controller
             'lines' => ['required', 'array', 'min:1'],
             'lines.*.expense_date' => ['required', 'date'],
             'lines.*.expense_category_id' => ['required', 'exists:product_categories,id'],
-            'lines.*.project_id' => ['nullable', 'exists:projects,id'],
+            'lines.*.project_id' => ['required', 'exists:projects,id'],
             'lines.*.description' => ['nullable', 'string'],
             'lines.*.total' => ['required', 'numeric', 'min:0'],
-            'lines.*.attachment' => ['nullable', 'file', 'max:5120', 'mimes:jpg,jpeg,png,pdf'],
+            'lines.*.attachment' => ['required', 'file', 'max:5120', 'mimes:jpg,jpeg,png,pdf'],
         ]);
     }
 

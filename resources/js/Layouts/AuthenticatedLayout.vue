@@ -4,10 +4,15 @@ import ModuleNav from '@/Components/layout/ModuleNav.vue';
 import TopBar from '@/Components/layout/TopBar.vue';
 import Toaster from '@/Components/ui/Toaster.vue';
 import { useModuleNav } from '@/Composables/useModuleNav';
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 
 const { modules, activeModule } = useModuleNav();
 const sidebarOpen = ref(false);
+const sidebarCollapsed = ref(localStorage.getItem('sidebar-collapsed') === 'true');
+
+watch(sidebarCollapsed, (value) => {
+    localStorage.setItem('sidebar-collapsed', String(value));
+});
 </script>
 
 <template>
@@ -30,7 +35,10 @@ const sidebarOpen = ref(false);
                     v-if="activeModule && activeModule.children.length > 1"
                     :module="activeModule"
                     :open="sidebarOpen"
+                    :collapsible="activeModule.key === 'expense'"
+                    :collapsed="activeModule.key === 'expense' && sidebarCollapsed"
                     @close="sidebarOpen = false"
+                    @toggle-collapse="sidebarCollapsed = !sidebarCollapsed"
                 />
 
                 <main class="min-w-0 flex-1 space-y-4 lg:space-y-6">

@@ -2,9 +2,11 @@
 
 namespace App\Models;
 
+use App\Enums\ApprovalStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 
@@ -12,13 +14,14 @@ class ExpenseReportLine extends Model implements HasMedia
 {
     use HasFactory, InteractsWithMedia;
 
-    protected $fillable = ['expense_report_id', 'expense_date', 'expense_category_id', 'project_id', 'description', 'total'];
+    protected $fillable = ['expense_report_id', 'expense_date', 'expense_category_id', 'project_id', 'description', 'total', 'status'];
 
     protected function casts(): array
     {
         return [
             'expense_date' => 'date',
             'total' => 'decimal:2',
+            'status' => ApprovalStatus::class,
         ];
     }
 
@@ -35,5 +38,10 @@ class ExpenseReportLine extends Model implements HasMedia
     public function project(): BelongsTo
     {
         return $this->belongsTo(Project::class);
+    }
+
+    public function lineApprovals(): HasMany
+    {
+        return $this->hasMany(ExpenseReportLineApproval::class);
     }
 }

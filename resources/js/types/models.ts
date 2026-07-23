@@ -17,6 +17,7 @@ export interface ProductCategory {
     id: number;
     code: string;
     name: string;
+    coa: string | null;
 }
 
 export interface Project {
@@ -29,9 +30,15 @@ export interface Product {
     id: number;
     name: string;
     price: string;
+    user_price: string | null;
+    partner_price: string | null;
     tax_percentage: string;
     type: string | null;
     product_category_id: number;
+    account_type: string | null;
+    coa: string | null;
+    coa_parent: string | null;
+    currency: string | null;
     category?: ProductCategory;
 }
 
@@ -94,9 +101,17 @@ export interface ApprovalMatrix {
 
 export type PurchaseStatus = 'draft' | 'submitted' | 'in_approval' | 'approved' | 'rejected' | 'cancelled' | 'in_rfq' | 'sent_to_accounting';
 
-export type ApprovalStatus = 'pending' | 'approved' | 'rejected';
+export type ApprovalStatus = 'pending' | 'approved' | 'rejected' | 'skipped';
 
-export type ExpenseStatus = 'draft' | 'submitted' | 'in_approval' | 'approved' | 'rejected' | 'cancelled' | 'sent_to_accounting';
+export type ExpenseStatus =
+    | 'draft'
+    | 'submitted'
+    | 'in_approval'
+    | 'needs_revision'
+    | 'approved'
+    | 'rejected'
+    | 'cancelled'
+    | 'sent_to_accounting';
 
 export interface PurchaseRequestLine {
     id: number;
@@ -175,6 +190,18 @@ export interface Media {
     original_url: string;
 }
 
+export interface ExpenseReportLineApproval {
+    id: number;
+    expense_report_line_id: number;
+    approval_matrix_level_id: number;
+    approver_id: number;
+    status: ApprovalStatus;
+    remarks: string | null;
+    approved_at: string | null;
+    approver?: UserOption;
+    approval_matrix_level?: ApprovalMatrixLevel;
+}
+
 export interface ExpenseReportLine {
     id: number;
     expense_report_id: number;
@@ -183,22 +210,11 @@ export interface ExpenseReportLine {
     project_id: number | null;
     description: string | null;
     total: string;
+    status: ApprovalStatus;
     expense_category?: ProductCategory;
     project?: Project | null;
     media?: Media[];
-}
-
-export interface ExpenseReportApproval {
-    id: number;
-    expense_report_id: number;
-    approval_matrix_level_id: number;
-    approver_id: number;
-    status: ApprovalStatus;
-    remarks: string | null;
-    approved_at: string | null;
-    approver?: UserOption;
-    approval_matrix_level?: ApprovalMatrixLevel;
-    expense_report?: ExpenseReport;
+    line_approvals?: ExpenseReportLineApproval[];
 }
 
 export interface ExpenseReport {
@@ -211,8 +227,19 @@ export interface ExpenseReport {
     created_at: string;
     employee?: Employee;
     lines?: ExpenseReportLine[];
-    approvals?: ExpenseReportApproval[];
+    current_approver_name?: string | null;
 }
+
+export interface ExpenseHistoryLineRef {
+    id: number;
+    description: string | null;
+    remarks: string | null;
+}
+
+export type ExpenseHistoryEvent =
+    | { type: 'created' | 'submitted' | 'resubmitted' | 'sent_to_accounting' | 'cancelled' | 'report_approved'; at: string; actor?: UserOption }
+    | { type: 'lines_approved' | 'lines_rejected'; at: string; level: number; approver: UserOption; lines: ExpenseHistoryLineRef[] }
+    | { type: 'pending_approval' | 'future_approval'; level: number; approver: UserOption; lines: ExpenseHistoryLineRef[] };
 
 export interface AccountingBill {
     id: number;
@@ -244,4 +271,14 @@ export interface PurchasePayment {
     amount: string;
     purchase_invoice?: PurchaseInvoice;
     bank?: Bank;
+}
+
+export interface AccountType {
+    id: number;
+    name: string;
+}
+
+export interface Currency {
+    id: number;
+    name: string;
 }

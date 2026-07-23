@@ -7,12 +7,12 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class ExpenseReportApproval extends Model
+class ExpenseReportLineApproval extends Model
 {
     use HasFactory;
 
     protected $fillable = [
-        'expense_report_id',
+        'expense_report_line_id',
         'approval_matrix_level_id',
         'approver_id',
         'status',
@@ -28,9 +28,9 @@ class ExpenseReportApproval extends Model
         ];
     }
 
-    public function expenseReport(): BelongsTo
+    public function expenseReportLine(): BelongsTo
     {
-        return $this->belongsTo(ExpenseReport::class);
+        return $this->belongsTo(ExpenseReportLine::class);
     }
 
     public function approvalMatrixLevel(): BelongsTo

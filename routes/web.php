@@ -87,12 +87,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::resource('reports', ExpenseReportController::class)->parameters(['reports' => 'expenseReport']);
         Route::post('reports/{expenseReport}/submit', [ExpenseReportController::class, 'submit'])->name('reports.submit');
         Route::post('reports/{expenseReport}/cancel', [ExpenseReportController::class, 'cancel'])->name('reports.cancel');
+        Route::post('reports/{expenseReport}/resubmit', [ExpenseReportController::class, 'resubmit'])->name('reports.resubmit');
         Route::post('reports/{expenseReport}/send-to-accounting', [ExpenseReportController::class, 'sendToAccounting'])->name('reports.send-to-accounting');
 
         Route::get('approvals', [ExpenseApprovalController::class, 'index'])->name('approvals.index');
-        Route::get('approvals/{approval}', [ExpenseApprovalController::class, 'show'])->name('approvals.show');
-        Route::post('approvals/{approval}/approve', [ExpenseApprovalController::class, 'approve'])->name('approvals.approve');
-        Route::post('approvals/{approval}/reject', [ExpenseApprovalController::class, 'reject'])->name('approvals.reject');
+        Route::get('approvals/{expenseReport}', [ExpenseApprovalController::class, 'show'])->name('approvals.show');
+        Route::post('approvals/{expenseReport}/lines/approve', [ExpenseApprovalController::class, 'approveLines'])->name('approvals.lines.approve');
+        Route::post('approvals/{expenseReport}/lines/reject', [ExpenseApprovalController::class, 'rejectLines'])->name('approvals.lines.reject');
     });
 
     // Accounting
